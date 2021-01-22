@@ -1,4 +1,4 @@
-import c4d
+import mock4d as c4d
 
 asset_grp = c4d.NullObject()
 asset_grp.SetName("Asset_Grp")

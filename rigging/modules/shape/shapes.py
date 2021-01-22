@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import c4d
+import mock4d as c4d
 
 from typing import List, Any, TYPE_CHECKING
 

@@ -1,29 +1,19 @@
-class BaseObject:
+from mock4d.baselist2d import BaseList2D
+
+
+class BaseObject(BaseList2D):
     """
     This class represents a Base Object
     """
 
-    def __init__(self):
-        self._name = ""
+    def __init__(
+        self,
+        atom_type: int
+    ):
         self._children = []
         self._parent = None
-        self._data = {}
-    
-    def __repr__(self):
-        return "<{}.{} object '{}'>".format(
-            __name__,
-            self.__class__.__name__,
-            self.GetName()
-        )
 
-    def GetDataInstance(self):
-        return self._data
-    
-    def SetName(self, name):
-        self._name = name
-
-    def GetName(self):
-        return self._name
+        super(BaseObject, self).__init__(atom_type)
     
     def GetDown(self):
         if self._children:
@@ -53,15 +43,3 @@ class BaseObject:
 
         if self not in self._parent._children:
             self._parent._children.append(self)
-
-
-class NullObject(BaseObject):
-    """
-    This class represents a Null Object
-    """
-
-
-class JointObject(BaseObject):
-    """
-    This class represents a Joint Object
-    """

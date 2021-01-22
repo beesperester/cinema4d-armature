@@ -1,4 +1,4 @@
-import c4d
+import mock4d as c4d
 
 from typing import Any, List
 
