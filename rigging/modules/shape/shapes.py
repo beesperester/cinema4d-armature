@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import c4d
 
-from typing import List, Any
+from typing import List, Any, TYPE_CHECKING
 
-from rigging.modules.messagebag import Messagebag
-from rigging.modules.shape.validators import ChildrenValidator
+from rigging.modules.hierarchy import Hierarchy
+from rigging.utilities.iterator import IterateChildren
+
+if TYPE_CHECKING:
+    from rigging.modules.validators import IValidator
 
 
 class ShapeError(Exception):
@@ -27,13 +32,18 @@ class ObjectShape(Shape):
     def __init__(
         self,
         name: str,
-        validators: List["IValidator"] = None
+        validators: List[IValidator] = None,
+        children: List[Shape] = None
     ) -> None:
         if validators is None:
             validators = []
+        
+        if children is None:
+            children = []
 
         self._name = name
         self._validators = validators
+        self._children = children
     
     def __repr__(self):
         return "<{}.{} object '{}'>".format(
@@ -42,33 +52,51 @@ class ObjectShape(Shape):
             self.GetName()
         )
     
-    def GetValidators(self) -> List["IValidator"]:
-        return self._validators
+    def GetValidators(self) -> List[IValidator]:
+        return [*self._validators]
+    
+    def GetChildren(self) -> List[Shape]:
+        return [*self._children]
     
     def GetName(self) -> str:
         return self._name
-
-    def GetShape(self):
-        return {
-            "type": self.__class__.__name__,
-            "name": self.GetName(),
-            "validators": [
-                x.GetShape() for x in self.GetValidators()
-            ]
-        }
     
-    def Validate(
+    def Integrate(
         self,
-        op: c4d.BaseObject,
-        messagebag: Messagebag
+        op: c4d.BaseObject
     ) -> bool:
+        # test if self is valid
+        for validator in self.GetValidators():
+            validator.Validate(op)
 
-        return all([
-            x.Validate(op, messagebag)
-            for x in self.GetValidators()
-        ])
+        # test if child shapes are valid
+        results = []
+        exceptions = []
 
+        for child_object_shape in self.GetChildren():
+            for child_object in IterateChildren(op.GetDown()):
+                try:
+                    results.append(
+                        child_object_shape.Integrate(child_object)
+                    )
+                except Exception as e:
+                    exceptions.append(e)
 
-
-
-
+        children_valid = (
+            bool(results)
+            if self.GetChildren() else True
+        )
+        
+        if not children_valid:
+            if exceptions:
+                # no object matching specified shape
+                raise Exception(exceptions.pop())
+            else:
+                # missing object
+                raise Exception("No child object matches shape")
+        
+        return Hierarchy(
+            self.GetName(),
+            op,
+            results
+        )
