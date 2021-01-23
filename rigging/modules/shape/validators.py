@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import mock4d as c4d
+import c4d
 
 from fnmatch import fnmatch
 
@@ -72,7 +72,7 @@ class InstanceValidator(IValidator):
         using fnmatch
         """
 
-        if not isinstance(op, self._instance_type):
+        if not op.IsInstanceOf(self._instance_type):
             """
             Append error message to messagebag
             """

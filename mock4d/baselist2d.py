@@ -14,18 +14,32 @@ class BaseList2D(GeListNode):
         atom_type: int
     ) -> None:
         self._name = ""
-        self._data = BaseContainer()
 
         super(BaseList2D, self).__init__(atom_type)
     
-    def GetData(self):
+    def __repr__(self) -> str:
+        object_name = "{}/{}".format(
+            self.GetTypeName(),
+            self.GetName()
+        )
+
+        return "<{} {} with id '{}' at {}>".format(
+            self.__class__.__name__,
+            object_name,
+            self.GetType(),
+            hex(id(self))
+        )
+    
+    def GetData(self) -> BaseContainer:
         return copy.deepcopy(self.GetDataInstance())
 
-    def GetDataInstance(self):
+    def GetDataInstance(self) -> BaseContainer:
         return self._data
     
-    def SetName(self, name):
+    def SetName(self, name: str):
+        assert isinstance(name, str)
+
         self._name = name
 
-    def GetName(self):
+    def GetName(self) -> str:
         return self._name

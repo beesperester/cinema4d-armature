@@ -1,40 +1,60 @@
-import mock4d as c4d
+import c4d
 
-asset_grp = c4d.NullObject()
-asset_grp.SetName("Asset_Grp")
+Asset_Grp = c4d.BaseObject(c4d.Onull)
+Asset_Grp.SetName("Asset_Grp")
 
-rig_grp = c4d.NullObject()
-rig_grp.SetName("Rig_Grp")
-rig_grp.InsertUnder(asset_grp)
+Rig_Grp = c4d.BaseObject(c4d.Onull)
+Rig_Grp.SetName("Rig_Grp")
+Rig_Grp.InsertUnder(Asset_Grp)
 
-joints_grp = c4d.NullObject()
-joints_grp.SetName("Joints_Grp")
-joints_grp.InsertUnder(rig_grp)
+Ctrls_Grp = c4d.BaseObject(c4d.Onull)
+Ctrls_Grp.SetName("Ctrls_Grp")
+Ctrls_Grp.InsertUnder(Rig_Grp)
 
-l_upperleg_joint = c4d.JointObject()
-l_upperleg_joint.SetName("L_Upperleg_Joint")
-l_upperleg_joint.InsertUnder(joints_grp)
+Joints_Grp = c4d.BaseObject(c4d.Onull)
+Joints_Grp.SetName("Joints_Grp")
+Joints_Grp.InsertUnder(Rig_Grp)
 
-l_upperleg_weight_joint = c4d.JointObject()
-l_upperleg_weight_joint.SetName("L_UpperlegWeight_Joint")
-l_upperleg_weight_joint.InsertUnder(l_upperleg_joint)
+Root_Joint = c4d.BaseObject(c4d.Ojoint)
+Root_Joint.SetName("Root_Joint")
+Root_Joint.InsertUnder(Joints_Grp)
 
-l_lowerleg_joint = c4d.JointObject()
-l_lowerleg_joint.SetName("L_Lowerleg_Joint")
-l_lowerleg_joint.InsertUnder(l_upperleg_joint)
+Pelvis_Joint = c4d.BaseObject(c4d.Ojoint)
+Pelvis_Joint.SetName("Pelvis_Joint")
+Pelvis_Joint.InsertUnder(Root_Joint)
 
-l_lowerleg_weight_joint = c4d.JointObject()
-l_lowerleg_weight_joint.SetName("L_LowerlegWeight_Joint")
-l_lowerleg_weight_joint.InsertUnder(l_lowerleg_joint)
+L_Upperleg_Joint = c4d.BaseObject(c4d.Ojoint)
+L_Upperleg_Joint.SetName("L_Upperleg_Joint")
+L_Upperleg_Joint.InsertUnder(Pelvis_Joint)
 
-l_ankle_joint = c4d.JointObject()
-l_ankle_joint.SetName("L_Ankle_Joint")
-l_ankle_joint.InsertUnder(l_lowerleg_joint)
+L_UpperlegWeight_Joint = c4d.BaseObject(c4d.Ojoint)
+L_UpperlegWeight_Joint.SetName("L_UpperlegWeight_Joint")
+L_UpperlegWeight_Joint.InsertUnder(L_Upperleg_Joint)
 
-l_ball_joint = c4d.JointObject()
-l_ball_joint.SetName("L_Ball_Joint")
-l_ball_joint.InsertUnder(l_ankle_joint)
+L_Lowerleg_Joint = c4d.BaseObject(c4d.Ojoint)
+L_Lowerleg_Joint.SetName("L_Lowerleg_Joint")
+L_Lowerleg_Joint.InsertUnder(L_Upperleg_Joint)
 
-ctrls_grp = c4d.NullObject()
-ctrls_grp.SetName("Ctrls_Grp")
-ctrls_grp.InsertUnder(rig_grp)
+L_LowerlegWeight_Joint = c4d.BaseObject(c4d.Ojoint)
+L_LowerlegWeight_Joint.SetName("L_LowerlegWeight_Joint")
+L_LowerlegWeight_Joint.InsertUnder(L_Lowerleg_Joint)
+
+L_Ankle_Joint = c4d.BaseObject(c4d.Ojoint)
+L_Ankle_Joint.SetName("L_Ankle_Joint")
+L_Ankle_Joint.InsertUnder(L_Lowerleg_Joint)
+
+L_AnkleWeight_Joint = c4d.BaseObject(c4d.Ojoint)
+L_AnkleWeight_Joint.SetName("L_AnkleWeight_Joint")
+L_AnkleWeight_Joint.InsertUnder(L_Ankle_Joint)
+
+L_Ball_Joint = c4d.BaseObject(c4d.Ojoint)
+L_Ball_Joint.SetName("L_Ball_Joint")
+L_Ball_Joint.InsertUnder(L_Ankle_Joint)
+
+L_BallWeight_Joint = c4d.BaseObject(c4d.Ojoint)
+L_BallWeight_Joint.SetName("L_BallWeight_Joint")
+L_BallWeight_Joint.InsertUnder(L_Ball_Joint)
+
+Geo_Grp = c4d.BaseObject(c4d.Onull)
+Geo_Grp.SetName("Geo_Grp")
+Geo_Grp.InsertUnder(Asset_Grp)

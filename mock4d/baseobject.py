@@ -1,4 +1,7 @@
+from typing import List
+
 from mock4d.baselist2d import BaseList2D
+from mock4d.basetag import BaseTag
 
 
 class BaseObject(BaseList2D):
@@ -9,37 +12,40 @@ class BaseObject(BaseList2D):
     def __init__(
         self,
         atom_type: int
-    ):
-        self._children = []
-        self._parent = None
+    ) -> None:
+        self._tags = []
 
         super(BaseObject, self).__init__(atom_type)
     
-    def GetDown(self):
-        if self._children:
-            return self._children[0]
-        
-        return None
-    
-    def GetUp(self):
-        return self._parent
-    
-    def GetNext(self):
-        if not self._parent:
-            return None
-        
-        if not self._parent._children:
-            return None
-        
-        own_index = self._parent._children.index(self)
+    def GetTags(self) -> List[BaseTag]:
+        return self._tags
 
-        if own_index + 1 > len(self._parent._children) - 1:
-            return None
-        
-        return self._parent._children[own_index + 1]
-    
-    def InsertUnder(self, parent):
-        self._parent = parent
+    def InsertTag(
+        self,
+        tp: BaseTag,
+        pred: BaseTag = None
+    ) -> None:
+        assert isinstance(tp, BaseTag)
 
-        if self not in self._parent._children:
-            self._parent._children.append(self)
+        if pred in self._tags:
+            self._tags.insert(
+                self._tags.index(pred) + 1,
+                tp
+            )
+        else:
+            self._tags.append(tp)
+
+        tp.SetObject(self)
+    
+    def MakeTag(
+        self,
+        x: int,
+        pred: BaseTag = None
+    ) -> BaseTag:
+        tag = BaseTag(x)
+
+        tag.SetObject(self)
+
+        self.InsertTag(tag, pred)
+
+        return tag

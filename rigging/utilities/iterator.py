@@ -1,4 +1,4 @@
-import mock4d as c4d
+import c4d
 
 
 def IterateHierarchy(op: c4d.BaseObject):

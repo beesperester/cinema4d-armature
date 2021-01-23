@@ -1,23 +1,31 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from mock4d.baselist2d import BaseList2D
+
+if TYPE_CHECKING:
+    from mock4d.baseobject import BaseObject
 
 
 class BaseTag(BaseList2D):
     """
-    This class represents a Base Object
+    This class represents a Base Tag
     """
-
-    def __new__(
-        cls,
-        type: int
-    ) -> "BaseTag":
-        pass
 
     def __init__(
         self,
-        type: int
+        atom_type: int
     ):
-        self._type = type
         self._op = None
+
+        super(BaseTag, self).__init__(atom_type)
     
-    def GetObject(self):
+    def GetObject(self) -> BaseObject:
         return self._op
+    
+    def SetObject(
+        self,
+        op: BaseObject
+    ) -> None:
+        self._op = op

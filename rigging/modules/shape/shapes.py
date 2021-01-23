@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import mock4d as c4d
+import c4d
 
 from typing import List, Any, TYPE_CHECKING
 
@@ -61,7 +61,7 @@ class ObjectShape(Shape):
     def GetName(self) -> str:
         return self._name
     
-    def Integrate(
+    def Exctract(
         self,
         op: c4d.BaseObject
     ) -> bool:
@@ -77,7 +77,7 @@ class ObjectShape(Shape):
             for child_object in IterateChildren(op.GetDown()):
                 try:
                     results.append(
-                        child_object_shape.Integrate(child_object)
+                        child_object_shape.Exctract(child_object)
                     )
                 except Exception as e:
                     exceptions.append(e)

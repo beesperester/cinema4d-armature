@@ -1,4 +1,4 @@
-import mock4d as c4d
+import c4d
 
 from typing import Any, List
 
@@ -19,10 +19,10 @@ class Hierarchy:
         self._children = children
     
     def __repr__(self):
-        return "<{}.{} object '{}'>".format(
-            __name__,
+        return "<{} object '{}' at {}>".format(
             self.__class__.__name__,
-            self.GetName()
+            self.GetName(),
+            hex(id(self))
         )
     
     def __getattr__(
