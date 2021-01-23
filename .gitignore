@@ -1,2 +1,12 @@
+# visual studio code
+.vscode
+
+# virtualenv
+.venv
+
+# macos
+.DS_Store
+
 # python
 __pycache__
+*.pyc
