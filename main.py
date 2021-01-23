@@ -38,3 +38,5 @@ def CreateCtrl(
     return (Off, Ctrl)
 
 Root_Off, Root_Ctrl = CreateCtrl(root_hierarchy.GetObject())
+
+print(Root_Off)
