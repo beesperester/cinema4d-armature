@@ -1,4 +1,4 @@
-from rigging.modules.hierarchy import Hierarchy
+from armature.modules.hierarchy import Hierarchy
 
 
 class BaseRig:
@@ -11,7 +11,7 @@ class BaseRig:
         hierarchy: Hierarchy
     ) -> None:
         self._hierarchy = hierarchy
-    
+
     def GetHierarchy(self) -> Hierarchy:
         return self._hierarchy
 

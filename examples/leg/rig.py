@@ -2,7 +2,7 @@ import c4d
 
 from typing import Tuple
 
-from rigging.modules.rig import BaseRig
+from armature.modules.rig import BaseRig
 
 from examples.modules import fk
 

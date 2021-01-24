@@ -4,11 +4,11 @@ import c4d
 
 from typing import List, Any, TYPE_CHECKING
 
-from rigging.modules.hierarchy import Hierarchy
-from rigging.utilities.iterator import IterateChildren
+from armature.modules.hierarchy import Hierarchy
+from armature.utilities.iterator import IterateChildren
 
 if TYPE_CHECKING:
-    from rigging.modules.validators import IValidator
+    from armature.modules.validators import IValidator
 
 
 class ShapeError(Exception):
@@ -39,13 +39,13 @@ class Shape:
             self.__class__.__name__,
             self.GetName()
         )
-    
+
     def GetValidators(self) -> List[IValidator]:
         return [*self._validators]
-    
+
     def GetName(self) -> str:
         return self._name
-    
+
     def Extract(
         self,
         op: c4d.BaseObject
@@ -67,7 +67,7 @@ class RecursiveShape(Shape):
         shape: Shape
     ) -> None:
         self._shape = shape
-    
+
     def GetShape(self):
         return self._shape
 
@@ -84,16 +84,16 @@ class RecursiveShape(Shape):
                 hierarchy.GetChildren().append(child_hierarchy)
             except Exception as e:
                 pass
-        
+
         return hierarchy
-            
+
 
     def Extract(
         self,
         op: c4d.BaseObject
     ) -> Hierarchy:
         return self.RecursiveExtract(op)
-        
+
 
 class ObjectShape(Shape):
     """
@@ -105,17 +105,17 @@ class ObjectShape(Shape):
         name: str,
         validators: List[IValidator] = None,
         children: List[Shape] = None
-    ) -> None:        
+    ) -> None:
         if children is None:
             children = []
 
         self._children = children
 
         super(ObjectShape, self).__init__(name, validators)
-    
+
     def GetChildren(self) -> List[Shape]:
         return [*self._children]
-    
+
     def Extract(
         self,
         op: c4d.BaseObject
@@ -141,7 +141,7 @@ class ObjectShape(Shape):
             bool(results)
             if self.GetChildren() else True
         )
-        
+
         if not children_valid:
             if exceptions:
                 # no object matching specified shape
@@ -149,7 +149,7 @@ class ObjectShape(Shape):
             else:
                 # missing object
                 raise Exception("No child object matches shape")
-        
+
         return Hierarchy(
             self.GetName(),
             op,

@@ -1,4 +1,4 @@
-from rigging.modules.shape.shapes import (
+from armature.modules.shape.shapes import (
     ObjectShape,
     Shape,
     RecursiveShape

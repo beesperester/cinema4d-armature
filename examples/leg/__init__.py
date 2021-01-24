@@ -1,4 +1,4 @@
-from rigging.modules.hierarchy import Hierarchy
+from armature.modules.hierarchy import Hierarchy
 
 from examples.leg.shape import shape
 from examples.leg.rig import Rig

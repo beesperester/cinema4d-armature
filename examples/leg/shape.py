@@ -1,7 +1,7 @@
 import c4d
 
-from rigging.modules.shape import ObjectShape
-from rigging.modules.shape.validators import (
+from armature.modules.shape import ObjectShape
+from armature.modules.shape.validators import (
     NameValidator,
     InstanceValidator
 )

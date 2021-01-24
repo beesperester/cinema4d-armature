@@ -5,7 +5,7 @@ from typing import Tuple
 from examples.scene import Asset_Grp
 from examples import asset, spine, leg
 
-from rigging.utilities import iterator
+from armature.utilities import iterator
 
 
 asset_hierarchy = asset.shape.Extract(Asset_Grp)
