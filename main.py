@@ -1,6 +1,6 @@
 import c4d
 
-from typing import List, Union
+from typing import List, Union, Callable
 
 from armature.modules.hierarchy import Hierarchy
 
@@ -9,10 +9,11 @@ class ArmatureAdapter:
 
     def __init__(
         self,
-        name: str
+        name: str,
+        op: c4d.BaseObject
     ) -> None:
         self._name = name
-        self._op = None
+        self._op = op
 
     def __repr__(self):
         return "<{} object '{}' at {}>".format(
@@ -21,20 +22,8 @@ class ArmatureAdapter:
             hex(id(self))
         )
 
-    @property
-    def is_mounted(self) -> bool:
-        return isinstance(self.GetObject(), c4d.BaseObject)
-
     def GetName(self) -> str:
         return self._name
-
-    def SetObject(
-        self,
-        op: c4d.BaseObject
-    ) -> None:
-        assert isinstance(op, c4d.BaseObject)
-
-        self._op = op
 
     def GetObject(self) -> c4d.BaseObject:
         return self._op
@@ -46,6 +35,7 @@ class Armature:
         self,
         name: str,
         hierarchy: Hierarchy,
+        mount_callback: Callable,
         modules: List["Armature"] = None,
         **kwargs
     ) -> None:
@@ -54,6 +44,7 @@ class Armature:
 
         self._name = name
         self._hierarchy = Hierarchy
+        self._mount_callback = mount_callback
         self._parent = None
         self._modules = [x.SetParent(self) for x in modules]
         self._adapters = []
@@ -118,21 +109,33 @@ class Armature:
         return self._adapters
 
     def Mount(self) -> None:
-        for adapter in self.GetAdapters():
-            adapter.SetObject(c4d.BaseObject(c4d.Onull))
+        for adapter in self._mount_callback(self._hierarchy):
+            self._adapters.append(adapter)
+
+
+def CreateSpineCtrls(hierarchy):
+    pelvis_ctrl_adapter = ArmatureAdapter(
+        "pelvis_ctrl",
+        c4d.BaseObject(c4d.Onull)
+    )
+
+    yield pelvis_ctrl_adapter
 
 
 spine = Armature(
     "spine",
     "spine_hirarchy",
+    CreateSpineCtrls,
     [
         Armature(
             "l_leg",
-            "l_leg_hierarchy"
+            "l_leg_hierarchy",
+            lambda x: x
         ),
         Armature(
             "r_leg",
-            "r_leg_hierarchy"
+            "r_leg_hierarchy",
+            lambda x: x
         )
     ],
     adapters=[
@@ -143,7 +146,6 @@ spine = Armature(
 
 spine.Mount()
 
-print(spine.module_l_leg.GetParent())
 
 # import c4d
 

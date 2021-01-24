@@ -1,22 +1,26 @@
-from mock4d.baselist2d import BaseList2D
-from mock4d.gelistnode import GeListNode
+from __future__ import annotations
+
+from typing import Optional
+
+from mock4d import baselist2d, gelistnode
 
 
-class LayerObject(BaseList2D):
+class LayerObject(baselist2d.BaseList2D):
     """
     This class represents a Layer Object
     """
 
-class BaseDocument(BaseList2D):
+
+class BaseDocument(baselist2d.BaseList2D):
     """
     This class represents a Base Document
     """
 
     def __init__(
         self,
-        atom_type: int = None
+        atom_type: Optional[int] = None
     ) -> None:
-        self._layers = GeListNode()
+        self._layers: gelistnode.GeListNode = gelistnode.GeListNode()
 
         super(BaseDocument, self).__init__(atom_type)
 

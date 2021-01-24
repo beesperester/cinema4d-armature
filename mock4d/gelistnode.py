@@ -1,27 +1,30 @@
-from mock4d.c4datom import C4DAtom
-from mock4d.basecontainer import BaseContainer
+from __future__ import annotations
+
+from typing import List, Optional, Any
+
+from mock4d import c4datom, basecontainer
 
 
-class GeListNode(C4DAtom):
+class GeListNode(c4datom.C4DAtom):
     """
     This class represents a Ge List Node
     """
 
     def __init__(
         self,
-        atom_type: int = None
+        atom_type: Optional[int] = None
     ) -> None:
-        self._children = []
-        self._parent = None
-        self._data = BaseContainer()
+        self._children: List[GeListNode] = []
+        self._parent: Optional[GeListNode] = None
+        self._data: basecontainer.BaseContainer = basecontainer.BaseContainer()
 
         super(GeListNode, self).__init__(atom_type)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Any):
         if not hasattr(self, key):
             self._data[key] = value
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         if not hasattr(self, key):
             return self._data[key]
 
@@ -31,13 +34,13 @@ class GeListNode(C4DAtom):
 
         return None
 
-    def GetUp(self):
+    def GetUp(self) -> Optional[GeListNode]:
         return self._parent
 
-    def GetChildren(self):
+    def GetChildren(self) -> List[GeListNode]:
         return self._children
 
-    def GetNext(self):
+    def GetNext(self: GeListNode) -> Optional[GeListNode]:
         if not self._parent:
             return None
 
@@ -51,7 +54,10 @@ class GeListNode(C4DAtom):
 
         return self._parent._children[own_index + 1]
 
-    def InsertUnder(self, parent):
+    def InsertUnder(
+        self: GeListNode,
+        parent: GeListNode
+    ):
         self._parent = parent
 
         if self not in self._parent._children:

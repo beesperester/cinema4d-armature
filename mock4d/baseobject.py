@@ -1,10 +1,11 @@
-from typing import List
+from __future__ import annotations
 
-from mock4d.baselist2d import BaseList2D
-from mock4d.basetag import BaseTag
+from typing import List, Optional
+
+from mock4d import baselist2d, basetag
 
 
-class BaseObject(BaseList2D):
+class BaseObject(baselist2d.BaseList2D):
     """
     This class represents a Base Object
     """
@@ -16,16 +17,16 @@ class BaseObject(BaseList2D):
         self._tags = []
 
         super(BaseObject, self).__init__(atom_type)
-    
-    def GetTags(self) -> List[BaseTag]:
+
+    def GetTags(self) -> List[basetag.BaseTag]:
         return self._tags
 
     def InsertTag(
         self,
-        tp: BaseTag,
-        pred: BaseTag = None
+        tp: basetag.BaseTag,
+        pred: Optional[basetag.BaseTag] = None
     ) -> None:
-        assert isinstance(tp, BaseTag)
+        assert isinstance(tp, basetag.BaseTag)
 
         if pred in self._tags:
             self._tags.insert(
@@ -36,13 +37,13 @@ class BaseObject(BaseList2D):
             self._tags.append(tp)
 
         tp.SetObject(self)
-    
+
     def MakeTag(
         self,
         x: int,
-        pred: BaseTag = None
-    ) -> BaseTag:
-        tag = BaseTag(x)
+        pred: Optional[basetag.BaseTag] = None
+    ) -> basetag.BaseTag:
+        tag = basetag.BaseTag(x)
 
         tag.SetObject(self)
 

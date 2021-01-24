@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Optional
 
-from mock4d.baselist2d import BaseList2D
-
-if TYPE_CHECKING:
-    from mock4d.baseobject import BaseObject
+from mock4d import baselist2d, baseobject
 
 
-class BaseTag(BaseList2D):
+class BaseTag(baselist2d.BaseList2D):
     """
     This class represents a Base Tag
     """
@@ -17,15 +14,15 @@ class BaseTag(BaseList2D):
         self,
         atom_type: int
     ):
-        self._op = None
+        self._op: Optional[baseobject.BaseObject] = None
 
         super(BaseTag, self).__init__(atom_type)
-    
-    def GetObject(self) -> BaseObject:
+
+    def GetObject(self) -> Optional[baseobject.BaseObject]:
         return self._op
-    
+
     def SetObject(
         self,
-        op: BaseObject
+        op: baseobject.BaseObject
     ) -> None:
         self._op = op

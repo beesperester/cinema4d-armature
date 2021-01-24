@@ -1,3 +1,5 @@
+from typing import Optional, Dict, Any, List
+
 from mock4d import symbols
 
 
@@ -8,20 +10,20 @@ class C4DAtom:
 
     def __init__(
         self,
-        atom_type: int = None
+        atom_type: Optional[int] = None
     ) -> None:
-        self._atom_name = None
+        self._atom_name: Optional[str] = None
 
-        variables = symbols.__dict__
+        variables: Dict[str, Any] = symbols.__dict__
 
-        keys = list(variables.keys())
-        values = list(variables.values())
+        keys: List[str] = list(variables.keys())
+        values: List[Any] = list(variables.values())
 
         if atom_type in values:
             self._atom_name = keys[values.index(atom_type)]
 
         self._atom_type = atom_type
-    
+
     def __repr__(self) -> str:
         return "<{}.{} {} with id '{}' at {}>".format(
             __name__,
@@ -30,13 +32,13 @@ class C4DAtom:
             self.GetType(),
             hex(id(self))
         )
-    
-    def GetType(self) -> str:
+
+    def GetType(self) -> Optional[int]:
         return self._atom_type
-    
-    def GetTypeName(self) -> str:
+
+    def GetTypeName(self) -> Optional[str]:
         return self._atom_name
-    
+
     def CheckType(
         self,
         atom_type: int
