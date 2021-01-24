@@ -9,7 +9,7 @@ class GeListNode(C4DAtom):
 
     def __init__(
         self,
-        atom_type: int
+        atom_type: int = None
     ) -> None:
         self._children = []
         self._parent = None
@@ -17,13 +17,13 @@ class GeListNode(C4DAtom):
 
         super(GeListNode, self).__init__(atom_type)
     
-    # def __setitem__(self, key, value):
-    #     if not hasattr(self, key):
-    #         self._data[key] = value
+    def __setitem__(self, key, value):
+        if not hasattr(self, key):
+            self._data[key] = value
     
-    # def __getitem__(self, key):
-    #     if not hasattr(self, key):
-    #         return self._data[key]
+    def __getitem__(self, key):
+        if not hasattr(self, key):
+            return self._data[key]
     
     def GetDown(self):
         if self._children:

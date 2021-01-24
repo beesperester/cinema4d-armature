@@ -1,1 +1,5 @@
-from rigging.modules.shape.shapes import ObjectShape, Shape
+from rigging.modules.shape.shapes import (
+    ObjectShape,
+    Shape,
+    RecursiveShape
+)

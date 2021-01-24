@@ -8,7 +8,7 @@ class C4DAtom:
 
     def __init__(
         self,
-        atom_type: int
+        atom_type: int = None
     ) -> None:
         self._atom_name = None
 

@@ -19,32 +19,20 @@ class ShapeError(Exception):
 
 class Shape:
     """
-    This class represents a shape
+    This class represents a Shape
     """
-
-    def GetShape(self):
-        raise NotImplementedError("Method 'GetShape' is not implemented")
-
-
-
-class ObjectShape(Shape):
 
     def __init__(
         self,
         name: str,
-        validators: List[IValidator] = None,
-        children: List[Shape] = None
+        validators: List[IValidator] = None
     ) -> None:
         if validators is None:
             validators = []
-        
-        if children is None:
-            children = []
 
         self._name = name
         self._validators = validators
-        self._children = children
-    
+
     def __repr__(self):
         return "<{}.{} object '{}'>".format(
             __name__,
@@ -55,16 +43,83 @@ class ObjectShape(Shape):
     def GetValidators(self) -> List[IValidator]:
         return [*self._validators]
     
-    def GetChildren(self) -> List[Shape]:
-        return [*self._children]
-    
     def GetName(self) -> str:
         return self._name
     
-    def Exctract(
+    def Extract(
         self,
         op: c4d.BaseObject
-    ) -> bool:
+    ) -> Hierarchy:
+        raise NotImplementedError(
+            "{} must implement 'Extract'".format(
+                self.__class__.__name__
+            )
+        )
+
+
+class RecursiveShape(Shape):
+    """
+    This class represents a Recursive Shape
+    """
+
+    def __init__(
+        self,
+        shape: Shape
+    ) -> None:
+        self._shape = shape
+    
+    def GetShape(self):
+        return self._shape
+
+    def RecursiveExtract(
+        self,
+        op: c4d.BaseObject
+    ) -> Hierarchy:
+        hierarchy = self.GetShape().Extract(op)
+
+        for child in hierarchy.GetObject().GetChildren():
+            try:
+                child_hierarchy = self.RecursiveExtract(child)
+
+                hierarchy.GetChildren().append(child_hierarchy)
+            except Exception as e:
+                pass
+        
+        return hierarchy
+            
+
+    def Extract(
+        self,
+        op: c4d.BaseObject
+    ) -> Hierarchy:
+        return self.RecursiveExtract(op)
+        
+
+class ObjectShape(Shape):
+    """
+    This class represents an Object Shape
+    """
+
+    def __init__(
+        self,
+        name: str,
+        validators: List[IValidator] = None,
+        children: List[Shape] = None
+    ) -> None:        
+        if children is None:
+            children = []
+
+        self._children = children
+
+        super(ObjectShape, self).__init__(name, validators)
+    
+    def GetChildren(self) -> List[Shape]:
+        return [*self._children]
+    
+    def Extract(
+        self,
+        op: c4d.BaseObject
+    ) -> Hierarchy:
         # test if self is valid
         for validator in self.GetValidators():
             validator.Validate(op)
@@ -77,7 +132,7 @@ class ObjectShape(Shape):
             for child_object in IterateChildren(op.GetDown()):
                 try:
                     results.append(
-                        child_object_shape.Exctract(child_object)
+                        child_object_shape.Extract(child_object)
                     )
                 except Exception as e:
                     exceptions.append(e)

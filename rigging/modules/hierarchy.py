@@ -44,6 +44,14 @@ class Hierarchy:
     def GetName(self) -> str:
         return self._name
     
+    def SetName(
+        self,
+        name: str
+    ) -> None:
+        assert isinstance(name, str)
+        
+        self._name = name
+    
     def GetChildren(self):
         return self._children
     

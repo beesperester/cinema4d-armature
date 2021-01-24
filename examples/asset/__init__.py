@@ -1,0 +1,1 @@
+from examples.asset.shape import shape
