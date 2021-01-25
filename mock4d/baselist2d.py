@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import copy
 
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from mock4d.gelistnode import GeListNode
 from mock4d.basecontainer import BaseContainer
-
-if TYPE_CHECKING:
-    from mock4d import documents
+from mock4d import interfaces
 
 
 class BaseList2D(GeListNode):
@@ -21,7 +19,7 @@ class BaseList2D(GeListNode):
         atom_type: Optional[int] = None
     ) -> None:
         self._name: str = ""
-        self._layer: Optional[documents.LayerObject] = None
+        self._layer: Optional[interfaces.ILayerObject] = None
 
         super(BaseList2D, self).__init__(atom_type)
 
@@ -54,12 +52,12 @@ class BaseList2D(GeListNode):
 
     def SetLayerObject(
         self,
-        layer: documents.LayerObject
+        layer: interfaces.ILayerObject
     ) -> None:
         self._layer = layer
 
     def GetLayerObject(
         self,
-        doc: documents.BaseDocument
-    ) -> Optional[documents.LayerObject]:
+        doc: interfaces.IBaseDocument
+    ) -> Optional[interfaces.ILayerObject]:
         return self._layer

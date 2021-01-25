@@ -1,6 +1,6 @@
 import c4d
 
-from armature.modules.shape import ObjectShape
+from armature.modules.shape.shapes import ObjectShape
 from armature.modules.shape.validators import (
     NameValidator,
     InstanceValidator

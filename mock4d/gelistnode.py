@@ -28,19 +28,19 @@ class GeListNode(c4datom.C4DAtom):
         if not hasattr(self, key):
             return self._data[key]
 
-    def GetDown(self):
+    def GetDown(self) -> Optional[Any]:
         if self._children:
             return self._children[0]
 
         return None
 
-    def GetUp(self) -> Optional[GeListNode]:
+    def GetUp(self) -> Optional[Any]:
         return self._parent
 
-    def GetChildren(self) -> List[GeListNode]:
+    def GetChildren(self) -> List[Any]:
         return self._children
 
-    def GetNext(self: GeListNode) -> Optional[GeListNode]:
+    def GetNext(self) -> Optional[Any]:
         if not self._parent:
             return None
 
@@ -55,9 +55,9 @@ class GeListNode(c4datom.C4DAtom):
         return self._parent._children[own_index + 1]
 
     def InsertUnder(
-        self: GeListNode,
+        self,
         parent: GeListNode
-    ):
+    ) -> None:
         self._parent = parent
 
         if self not in self._parent._children:

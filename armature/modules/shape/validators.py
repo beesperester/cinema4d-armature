@@ -4,6 +4,8 @@ import c4d
 
 from fnmatch import fnmatch
 
+from armature.modules.shape import interfaces
+
 
 class ValidationError(Exception):
     """
@@ -11,25 +13,14 @@ class ValidationError(Exception):
     """
 
 
-class IValidator:
-
-    def Validate(
-        self,
-        op: c4d.BaseObject
-    ) -> bool:
-        raise NotImplementedError(
-            "Bound method 'Validate' must be implemented"
-        )
-
-
-class NameValidator(IValidator):
+class NameValidator(interfaces.IValidator):
 
     def __init__(
         self,
         name_pattern: str
     ) -> None:
         self._name_pattern = name_pattern
-    
+
     def Validate(
         self,
         op: c4d.BaseObject
@@ -51,18 +42,18 @@ class NameValidator(IValidator):
                     name
                 )
             )
-        
+
         return True
 
 
-class InstanceValidator(IValidator):
+class InstanceValidator(interfaces.IValidator):
 
     def __init__(
         self,
-        instance_type: c4d.BaseObject
+        instance_type: int
     ) -> None:
-        self._instance_type = instance_type
-    
+        self._instance_type: int = instance_type
+
     def Validate(
         self,
         op: c4d.BaseObject
@@ -82,5 +73,5 @@ class InstanceValidator(IValidator):
                     type(op)
                 )
             )
-        
+
         return True

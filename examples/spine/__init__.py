@@ -1,1 +1,0 @@
-from examples.spine.shape import shape

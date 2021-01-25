@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import c4d
 
-from typing import Any, List
+from typing import Any, List, Optional
 
 
 class Hierarchy:
@@ -9,14 +11,14 @@ class Hierarchy:
         self,
         name: str,
         op: c4d.BaseObject,
-        children: List["Hierarchy"] = None
+        children: Optional[List[Hierarchy]] = None
     ) -> None:
         if children is None:
             children = []
 
-        self._name = name
-        self._op = op
-        self._children = children
+        self._name: str = name
+        self._op: c4d.BaseObject = op
+        self._children: List[Hierarchy] = children
 
     def __repr__(self):
         return "<{} object '{}' at {}>".format(
@@ -29,7 +31,7 @@ class Hierarchy:
         self,
         name: str
     ) -> Any:
-        node_names = [x.GetName() for x in self.GetChildren()]
+        node_names: List[str] = [x.GetName() for x in self.GetChildren()]
 
         if name in node_names:
             return self.GetChildren()[node_names.index(name)]
@@ -52,7 +54,7 @@ class Hierarchy:
 
         self._name = name
 
-    def GetChildren(self):
+    def GetChildren(self) -> List[Hierarchy]:
         return self._children
 
     def GetObject(self) -> c4d.BaseObject:

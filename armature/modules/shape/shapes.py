@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import c4d
 
-from typing import List, Any, TYPE_CHECKING
+from typing import List, Optional
 
 from armature.modules.hierarchy import Hierarchy
-from armature.utilities.iterator import IterateChildren
 
-if TYPE_CHECKING:
-    from armature.modules.validators import IValidator
+from armature.modules.shape import interfaces
 
 
 class ShapeError(Exception):
@@ -25,13 +23,13 @@ class Shape:
     def __init__(
         self,
         name: str,
-        validators: List[IValidator] = None
+        validators: Optional[List[interfaces.IValidator]] = None
     ) -> None:
         if validators is None:
             validators = []
 
-        self._name = name
-        self._validators = validators
+        self._name: str = name
+        self._validators: List[interfaces.IValidator] = validators
 
     def __repr__(self):
         return "<{}.{} object '{}'>".format(
@@ -40,8 +38,8 @@ class Shape:
             self.GetName()
         )
 
-    def GetValidators(self) -> List[IValidator]:
-        return [*self._validators]
+    def GetValidators(self) -> List[interfaces.IValidator]:
+        return self._validators
 
     def GetName(self) -> str:
         return self._name
@@ -82,11 +80,10 @@ class RecursiveShape(Shape):
                 child_hierarchy = self.RecursiveExtract(child)
 
                 hierarchy.GetChildren().append(child_hierarchy)
-            except Exception as e:
+            except Exception:
                 pass
 
         return hierarchy
-
 
     def Extract(
         self,
@@ -103,13 +100,13 @@ class ObjectShape(Shape):
     def __init__(
         self,
         name: str,
-        validators: List[IValidator] = None,
-        children: List[Shape] = None
+        validators: Optional[List[interfaces.IValidator]] = None,
+        children: Optional[List[Shape]] = None
     ) -> None:
         if children is None:
             children = []
 
-        self._children = children
+        self._children: List[Shape] = children
 
         super(ObjectShape, self).__init__(name, validators)
 
@@ -129,7 +126,7 @@ class ObjectShape(Shape):
         exceptions = []
 
         for child_object_shape in self.GetChildren():
-            for child_object in IterateChildren(op.GetDown()):
+            for child_object in op.GetChildren():
                 try:
                     results.append(
                         child_object_shape.Extract(child_object)

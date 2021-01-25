@@ -25,7 +25,7 @@ def CreateCtrl(
 
     tag_name = op.GetName().replace("_Joint", "_Constraint")
 
-    if not tag_name in [x.GetName() for x in op.GetTags()]:
+    if tag_name not in [x.GetName() for x in op.GetTags()]:
         constraint = op.MakeTag(c4d.Tconstraint)
         constraint.SetName(tag_name)
 
