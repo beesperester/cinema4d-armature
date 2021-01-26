@@ -73,13 +73,13 @@ class IBaseTag:
     This class represents a Base Tag Interface
     """
 
-    # def __init__(
-    #     self,
-    #     atom_type: int
-    # ) -> None:
-    #     raise NotImplementedError(
-    #         "{} must implement '__init__'".format(self.__class__.__name__)
-    #     )
+    def __init__(
+        self,
+        atom_type: int
+    ) -> None:
+        raise NotImplementedError(
+            "{} must implement '__init__'".format(self.__class__.__name__)
+        )
 
     def GetObject(self) -> Optional[IBaseObject]:
         raise NotImplementedError(
