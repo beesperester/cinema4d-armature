@@ -13,7 +13,11 @@ from examples.scene import Asset_Grp
 from examples import leg, asset, spine
 
 
-def CreateSpineCtrls(armature: Armature) -> Generator[ArmatureAdapter]:
+def CreateSpineCtrls(armature: Armature) -> Generator[
+    ArmatureAdapter,
+    None,
+    None
+]:
     pelvis_ctrl_adapter = ArmatureAdapter(
         "pelvis_ctrl",
         c4d.BaseObject(c4d.Onull)
@@ -22,7 +26,11 @@ def CreateSpineCtrls(armature: Armature) -> Generator[ArmatureAdapter]:
     yield pelvis_ctrl_adapter
 
 
-def CreateLegCtrls(armature: Armature) -> Generator[ArmatureAdapter]:
+def CreateLegCtrls(armature: Armature) -> Generator[
+    ArmatureAdapter,
+    None,
+    None
+]:
     leg_off_adapter = ArmatureAdapter(
         "l_leg_off",
         c4d.BaseObject(c4d.Onull)

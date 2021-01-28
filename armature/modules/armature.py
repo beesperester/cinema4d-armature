@@ -37,7 +37,11 @@ class Armature:
         self,
         name: str,
         hierarchy: Hierarchy,
-        mount_callback: Callable[[Armature], Generator[ArmatureAdapter]],
+        mount_callback: Callable[[Armature], Generator[
+            ArmatureAdapter,
+            None,
+            None
+        ]],
         modules: Optional[List[Armature]] = None
     ) -> None:
         if modules is None:
