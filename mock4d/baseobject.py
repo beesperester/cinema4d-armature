@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from mock4d import baselist2d
 from mock4d import interfaces
+from mock4d.math import Vector, Matrix
 
 
 class BaseObject(interfaces.IBaseObject, baselist2d.BaseList2D):
@@ -51,3 +52,20 @@ class BaseObject(interfaces.IBaseObject, baselist2d.BaseList2D):
         self.InsertTag(tag, pred)
 
         return tag
+
+    def GetMg(self) -> Matrix:
+        return Matrix(
+            Vector(1, 0, 0),
+            Vector(0, 1, 0),
+            Vector(0, 0, 1),
+            Vector(0)
+        )
+
+    def SetMg(self, matrix: Matrix) -> None:
+        pass
+
+    def GetMl(self) -> Matrix:
+        return self.GetMg()
+
+    def SetMl(self, matrix: Matrix) -> None:
+        pass
