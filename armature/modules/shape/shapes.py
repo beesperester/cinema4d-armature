@@ -9,13 +9,7 @@ from armature.modules.hierarchy import Hierarchy
 from armature.modules.shape import interfaces
 
 
-class ShapeError(Exception):
-    """
-    This class represents a shape error
-    """
-
-
-class Shape:
+class BaseShape(interfaces.IShape):
     """
     This class represents a Shape
     """
@@ -44,25 +38,15 @@ class Shape:
     def GetName(self) -> str:
         return self._name
 
-    def Extract(
-        self,
-        op: c4d.BaseObject
-    ) -> Hierarchy:
-        raise NotImplementedError(
-            "{} must implement 'Extract'".format(
-                self.__class__.__name__
-            )
-        )
 
-
-class RecursiveShape(Shape):
+class RecursiveShape(BaseShape):
     """
     This class represents a Recursive Shape
     """
 
     def __init__(
         self,
-        shape: Shape
+        shape: BaseShape
     ) -> None:
         self._shape = shape
 
@@ -92,7 +76,7 @@ class RecursiveShape(Shape):
         return self.RecursiveExtract(op)
 
 
-class ObjectShape(Shape):
+class ObjectShape(BaseShape):
     """
     This class represents an Object Shape
     """
@@ -101,16 +85,16 @@ class ObjectShape(Shape):
         self,
         name: str,
         validators: Optional[List[interfaces.IValidator]] = None,
-        children: Optional[List[Shape]] = None
+        children: Optional[List[BaseShape]] = None
     ) -> None:
         if children is None:
             children = []
 
-        self._children: List[Shape] = children
+        self._children: List[BaseShape] = children
 
         super(ObjectShape, self).__init__(name, validators)
 
-    def GetChildren(self) -> List[Shape]:
+    def GetChildren(self) -> List[BaseShape]:
         return [*self._children]
 
     def Extract(
