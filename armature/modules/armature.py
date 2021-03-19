@@ -8,20 +8,13 @@ from armature.modules.hierarchy import Hierarchy
 
 
 class ArmatureAdapter:
-
-    def __init__(
-        self,
-        name: str,
-        op: c4d.BaseObject
-    ) -> None:
+    def __init__(self, name: str, op: c4d.BaseObject) -> None:
         self._name = name
         self._op = op
 
     def __repr__(self):
         return "<{} object '{}' at {}>".format(
-            self.__class__.__name__,
-            self.GetName(),
-            hex(id(self))
+            self.__class__.__name__, self.GetName(), hex(id(self))
         )
 
     def GetName(self) -> str:
@@ -31,18 +24,39 @@ class ArmatureAdapter:
         return self._op
 
 
-class Armature:
+class ArmatureAdapters(List[ArmatureAdapter]):
+    def __getattr__(self, name: str) -> ArmatureAdapter:
+        adapter_names = [x.GetName() for x in self]
 
+        if name in adapter_names:
+            return self[adapter_names.index(name)]
+
+        raise AttributeError(
+            "{} has no attribute '{}'".format(self.__class__.__name__, name)
+        )
+
+
+class ArmatureModules(List["Armature"]):
+    def __getattr__(self, name: str) -> Armature:
+        module_names = [x.GetName() for x in self]
+
+        if name in module_names:
+            return self[module_names.index(name)]
+
+        raise AttributeError(
+            "{} has no attribute '{}'".format(self.__class__.__name__, name)
+        )
+
+
+class Armature:
     def __init__(
         self,
         name: str,
         hierarchy: Hierarchy,
-        mount_callback: Callable[[Armature], Generator[
-            ArmatureAdapter,
-            None,
-            None
-        ]],
-        modules: Optional[List[Armature]] = None
+        mount_callback: Callable[
+            [Armature], Generator[ArmatureAdapter, None, None]
+        ],
+        modules: Optional[List[Armature]] = None,
     ) -> None:
         if modules is None:
             modules = []
@@ -51,53 +65,25 @@ class Armature:
             module.SetParent(self)
 
         self._name = name
-        self._hierarchy = Hierarchy
+        self._hierarchy = hierarchy
         self._mount_callback = mount_callback
         self._parent = None
-        self._modules = modules
-        self._adapters = []
+
+        self.modules = ArmatureModules(modules)
+        self.adapters = ArmatureAdapters()
 
     def __repr__(self):
         return "<{} object '{}' at {}>".format(
-            self.__class__.__name__,
-            self.GetName(),
-            hex(id(self))
-        )
-
-    def __getattr__(
-        self,
-        name: str
-    ) -> Union[Armature, ArmatureAdapter]:
-        if name.startswith("adapter_"):
-            name = name.replace("adapter_", "")
-
-            adapter_names = [x.GetName() for x in self.GetAdapters()]
-
-            if name in adapter_names:
-                return self.GetAdapters()[adapter_names.index(name)]
-
-        if name.startswith("module_"):
-            name = name.replace("module_", "")
-
-            module_names = [x.GetName() for x in self.GetModules()]
-
-            if name in module_names:
-                return self.GetModules()[module_names.index(name)]
-
-        raise AttributeError(
-            "{} has no attribute '{}'".format(
-                self.__class__.__name__,
-                name
-            )
+            self.__class__.__name__, self.GetName(), hex(id(self))
         )
 
     def GetName(self) -> str:
         return self._name
 
-    def SetParent(
-        self,
-        parent: Armature
-    ) -> None:
+    def GetHierarchy(self) -> Hierarchy:
+        return self._hierarchy
+
+    def SetParent(self, parent: Armature) -> None:
         assert isinstance(parent, Armature)
 
         self._parent = parent
@@ -105,15 +91,9 @@ class Armature:
     def GetParent(self) -> Optional[Armature]:
         return self._parent
 
-    def GetModules(self) -> List[Armature]:
-        return self._modules
-
-    def GetAdapters(self) -> List[ArmatureAdapter]:
-        return self._adapters
-
     def Mount(self) -> None:
         for adapter in self._mount_callback(self):
-            self._adapters.append(adapter)
+            self.adapters.append(adapter)
 
-        for module in self.GetModules():
+        for module in self.modules:
             module.Mount()

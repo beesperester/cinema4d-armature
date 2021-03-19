@@ -14,23 +14,16 @@ class ValidationError(Exception):
 
 
 class NameValidator(interfaces.IValidator):
-
-    def __init__(
-        self,
-        name_pattern: str
-    ) -> None:
+    def __init__(self, name_pattern: str) -> None:
         self._name_pattern = name_pattern
 
-    def Validate(
-        self,
-        op: c4d.BaseObject
-    ) -> bool:
+    def Validate(self, op: c4d.BaseObject) -> bool:
         """
         Validate the given name string against the name pattern
         using fnmatch
         """
 
-        name = op.GetName()
+        name = str(op.GetName())
 
         if not fnmatch(name, self._name_pattern):
             """
@@ -38,8 +31,7 @@ class NameValidator(interfaces.IValidator):
             """
             raise Exception(
                 "Object must match pattern '{}' is '{}'".format(
-                    self._name_pattern,
-                    name
+                    self._name_pattern, name
                 )
             )
 
@@ -47,17 +39,10 @@ class NameValidator(interfaces.IValidator):
 
 
 class InstanceValidator(interfaces.IValidator):
-
-    def __init__(
-        self,
-        instance_type: int
-    ) -> None:
+    def __init__(self, instance_type: int) -> None:
         self._instance_type: int = instance_type
 
-    def Validate(
-        self,
-        op: c4d.BaseObject
-    ) -> bool:
+    def Validate(self, op: c4d.BaseObject) -> bool:
         """
         Validate the given name string against the name pattern
         using fnmatch
@@ -69,8 +54,7 @@ class InstanceValidator(interfaces.IValidator):
             """
             raise Exception(
                 "Object must be an instance of '{}' is '{}'".format(
-                    self._instance_type,
-                    type(op)
+                    self._instance_type, type(op)
                 )
             )
 

@@ -10,10 +10,7 @@ class IValidator:
     This class represents a Validatorr Interface
     """
 
-    def Validate(
-        self,
-        op: c4d.BaseObject
-    ) -> bool:
+    def Validate(self, op: c4d.BaseObject) -> bool:
         raise NotImplementedError
 
 
@@ -23,9 +20,7 @@ class IShape:
     """
 
     def __init__(
-        self,
-        name: str,
-        validators: Optional[List[IValidator]] = None
+        self, name: str, validators: Optional[List[IValidator]] = None
     ) -> None:
         raise NotImplementedError
 
@@ -35,8 +30,5 @@ class IShape:
     def GetName(self) -> str:
         raise NotImplementedError
 
-    def Extract(
-        self,
-        op: c4d.BaseObject
-    ) -> Hierarchy:
+    def Extract(self, op: c4d.BaseObject) -> Hierarchy:
         raise NotImplementedError

@@ -17,7 +17,7 @@ class BaseShape(interfaces.IShape):
     def __init__(
         self,
         name: str,
-        validators: Optional[List[interfaces.IValidator]] = None
+        validators: Optional[List[interfaces.IValidator]] = None,
     ) -> None:
         if validators is None:
             validators = []
@@ -27,9 +27,7 @@ class BaseShape(interfaces.IShape):
 
     def __repr__(self):
         return "<{}.{} object '{}'>".format(
-            __name__,
-            self.__class__.__name__,
-            self.GetName()
+            __name__, self.__class__.__name__, self.GetName()
         )
 
     def GetValidators(self) -> List[interfaces.IValidator]:
@@ -45,34 +43,43 @@ class RecursiveShape(BaseShape):
     """
 
     def __init__(
-        self,
-        shape: BaseShape
+        self, shape: BaseShape, end_shape: Optional[BaseShape] = None
     ) -> None:
         self._shape = shape
+        self._end_shape = end_shape
 
-    def GetShape(self):
+    def HasEndShape(self) -> bool:
+        return bool(self._end_shape)
+
+    def GetShape(self) -> BaseShape:
         return self._shape
 
-    def RecursiveExtract(
-        self,
-        op: c4d.BaseObject
-    ) -> Hierarchy:
+    def GetEndShape(self) -> Optional[BaseShape]:
+        return self._end_shape
+
+    def RecursiveExtract(self, op: c4d.BaseObject) -> Hierarchy:
         hierarchy = self.GetShape().Extract(op)
 
-        for child in hierarchy.GetObject().GetChildren():
+        for child in hierarchy.GetObject().GetChildren():  # type: ignore
             try:
                 child_hierarchy = self.RecursiveExtract(child)
 
                 hierarchy.GetChildren().append(child_hierarchy)
             except Exception:
-                pass
+                # if no child matches the recursive shape
+                # try and match child to the end shape
+                # if an end shape is set
+                if self.HasEndShape():
+                    try:
+                        end_shape_hierarchy = self.GetEndShape().Extract(child)
+
+                        hierarchy.GetChildren().append(end_shape_hierarchy)
+                    except Exception:
+                        pass
 
         return hierarchy
 
-    def Extract(
-        self,
-        op: c4d.BaseObject
-    ) -> Hierarchy:
+    def Extract(self, op: c4d.BaseObject) -> Hierarchy:
         return self.RecursiveExtract(op)
 
 
@@ -85,7 +92,7 @@ class ObjectShape(BaseShape):
         self,
         name: str,
         validators: Optional[List[interfaces.IValidator]] = None,
-        children: Optional[List[BaseShape]] = None
+        children: Optional[List[BaseShape]] = None,
     ) -> None:
         if children is None:
             children = []
@@ -97,10 +104,7 @@ class ObjectShape(BaseShape):
     def GetChildren(self) -> List[BaseShape]:
         return [*self._children]
 
-    def Extract(
-        self,
-        op: c4d.BaseObject
-    ) -> Hierarchy:
+    def Extract(self, op: c4d.BaseObject) -> Hierarchy:
         # test if self is valid
         for validator in self.GetValidators():
             validator.Validate(op)
@@ -110,18 +114,13 @@ class ObjectShape(BaseShape):
         exceptions = []
 
         for child_object_shape in self.GetChildren():
-            for child_object in op.GetChildren():
+            for child_object in op.GetChildren():  # type: ignore
                 try:
-                    results.append(
-                        child_object_shape.Extract(child_object)
-                    )
+                    results.append(child_object_shape.Extract(child_object))
                 except Exception as e:
                     exceptions.append(e)
 
-        children_valid = (
-            bool(results)
-            if self.GetChildren() else True
-        )
+        children_valid = bool(results) if self.GetChildren() else True
 
         if not children_valid:
             if exceptions:
@@ -131,8 +130,4 @@ class ObjectShape(BaseShape):
                 # missing object
                 raise Exception("No child object matches shape")
 
-        return Hierarchy(
-            self.GetName(),
-            op,
-            results
-        )
+        return Hierarchy(self.GetName(), op, results)

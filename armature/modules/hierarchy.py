@@ -6,12 +6,11 @@ from typing import Any, List, Optional
 
 
 class Hierarchy:
-
     def __init__(
         self,
         name: str,
         op: c4d.BaseObject,
-        children: Optional[List[Hierarchy]] = None
+        children: Optional[List[Hierarchy]] = None,
     ) -> None:
         if children is None:
             children = []
@@ -22,15 +21,10 @@ class Hierarchy:
 
     def __repr__(self):
         return "<{} object '{}' at {}>".format(
-            self.__class__.__name__,
-            self.GetName(),
-            hex(id(self))
+            self.__class__.__name__, self.GetName(), hex(id(self))
         )
 
-    def __getattr__(
-        self,
-        name: str
-    ) -> Any:
+    def __getattr__(self, name: str) -> Any:
         node_names: List[str] = [x.GetName() for x in self.GetChildren()]
 
         if name in node_names:
@@ -38,18 +32,14 @@ class Hierarchy:
 
         raise AttributeError(
             "{} has no attribute '{}'".format(
-                "{}.{}".format(__name__, self.__class__.__name__),
-                name
+                "{}.{}".format(__name__, self.__class__.__name__), name
             )
         )
 
     def GetName(self) -> str:
         return self._name
 
-    def SetName(
-        self,
-        name: str
-    ) -> None:
+    def SetName(self, name: str) -> None:
         assert isinstance(name, str)
 
         self._name = name
