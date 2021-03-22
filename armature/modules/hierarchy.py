@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import c4d
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Generator
 
 
 class Hierarchy:
@@ -24,17 +24,15 @@ class Hierarchy:
             self.__class__.__name__, self.GetName(), hex(id(self))
         )
 
-    def __getattr__(self, name: str) -> Any:
-        node_names: List[str] = [x.GetName() for x in self.GetChildren()]
-
-        if name in node_names:
-            return self.GetChildren()[node_names.index(name)]
-
-        raise AttributeError(
-            "{} has no attribute '{}'".format(
-                "{}.{}".format(__name__, self.__class__.__name__), name
+    def __getattr__(self, name: str) -> Hierarchy:
+        try:
+            return self.GetChild(name)
+        except Exception:
+            raise AttributeError(
+                "{} has no attribute '{}'".format(
+                    "{}.{}".format(__name__, self.__class__.__name__), name
+                )
             )
-        )
 
     def GetName(self) -> str:
         return self._name
@@ -47,5 +45,23 @@ class Hierarchy:
     def GetChildren(self) -> List[Hierarchy]:
         return self._children
 
+    def GetChild(self, name: str) -> Hierarchy:
+        node_names: List[str] = [x.GetName() for x in self.GetChildren()]
+
+        if name in node_names:
+            return self.GetChildren()[node_names.index(name)]
+
+        raise Exception("{} has no child '{}'".format(self.GetName(), name))
+
     def GetObject(self) -> c4d.BaseObject:
         return self._op
+
+    def GetRecursive(self, name: str) -> Generator[Hierarchy, None, None]:
+        try:
+            child = self.GetChild(name)
+
+            yield child
+
+            yield from child.GetRecursive(name)
+        except Exception:
+            pass
