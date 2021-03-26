@@ -25,6 +25,13 @@ class BaseShape(interfaces.IShape):
         self._name: str = name
         self._validators: List[interfaces.IValidator] = validators
 
+    def __repr__(self):
+        return "<{} object '{}' at {}>".format(
+            self.__class__.__name__,
+            self.GetName(),
+            hex(id(self)),
+        )
+
     def GetValidators(self) -> List[interfaces.IValidator]:
         return self._validators
 
@@ -97,7 +104,7 @@ class ObjectShape(BaseShape):
         super(ObjectShape, self).__init__(name, validators)
 
     def GetChildren(self) -> List[BaseShape]:
-        return [*self._children]
+        return self._children
 
     def Extract(self, op: c4d.BaseObject) -> Hierarchy:
         # test if self is valid
@@ -115,12 +122,12 @@ class ObjectShape(BaseShape):
                 except Exception as e:
                     exceptions.append(e)
 
-        children_valid = bool(results) if self.GetChildren() else True
-
-        if not children_valid:
+        if len(results) < len(self.GetChildren()):
             if exceptions:
                 # no object matching specified shape
-                raise Exception(exceptions.pop())
+                exceptions.reverse()
+
+                raise exceptions.pop()
             else:
                 # missing object
                 raise Exception("No child object matches shape")

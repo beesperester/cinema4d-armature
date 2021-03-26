@@ -20,7 +20,7 @@ class Hierarchy:
         self._children: List[Hierarchy] = children
 
     def __repr__(self):
-        return "<{} object '{}' ({}) at {}>".format(
+        return "<{} object '{}@{}' at {}>".format(
             self.__class__.__name__,
             self.GetName(),
             self.GetObject().GetName(),
