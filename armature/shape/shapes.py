@@ -4,7 +4,7 @@ import c4d
 
 from typing import List, Optional
 
-from armature.modules.hierarchy import Hierarchy
+from armature.hierarchy import Hierarchy
 
 from armature import interfaces
 

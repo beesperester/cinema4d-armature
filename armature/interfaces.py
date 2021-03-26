@@ -2,7 +2,7 @@ import c4d
 
 from typing import Optional, List
 
-from armature.modules.hierarchy import Hierarchy
+from armature.hierarchy import Hierarchy
 
 
 class INamed:
