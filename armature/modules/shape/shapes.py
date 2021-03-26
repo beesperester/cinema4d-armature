@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from armature.modules.hierarchy import Hierarchy
 
-from armature.modules.shape import interfaces
+from armature import interfaces
 
 
 class BaseShape(interfaces.IShape):

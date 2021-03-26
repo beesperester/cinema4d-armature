@@ -4,7 +4,7 @@ import c4d
 
 from fnmatch import fnmatch
 
-from armature.modules.shape import interfaces
+from armature import interfaces
 
 
 class ValidationError(Exception):
