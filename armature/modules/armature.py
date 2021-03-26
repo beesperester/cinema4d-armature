@@ -23,7 +23,7 @@ class ArmatureAdapter(INamed):
         self._armature_module = armature_module
 
     def __repr__(self):
-        return "<{} object '{}@{}' at {}>".format(
+        return "<{} object '{}::{}' at {}>".format(
             self.__class__.__name__,
             self.GetName(),
             self.GetArmatureModule().GetName(),
@@ -59,7 +59,7 @@ class ArmatureModule(INamed):
         self._parent = parent
 
     def __repr__(self):
-        return "<{} object '{}@{}' at {}>".format(
+        return "<{} object '{}::{}' at {}>".format(
             self.__class__.__name__,
             self.GetName(),
             self.GetHierarchy().GetName(),
@@ -97,7 +97,7 @@ class ArmatureModule(INamed):
 
     def Mount(self) -> None:
         logging.info(
-            "Mount '{}@{}'".format(self.GetName(), self.__class__.__name__)
+            "Mount '{}::{}'".format(self.__class__.__name__, self.GetName())
         )
 
         # setup self
