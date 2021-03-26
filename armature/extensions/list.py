@@ -2,15 +2,15 @@ from typing import Optional, TypeVar, Generic, List, Any
 
 
 from armature.interfaces import INamed
+from armature.decorators import dont_use
 
-
-T = TypeVar("T", Any, INamed)
+T = TypeVar("T", bound=INamed, covariant=True)
 
 
 class AcessibleList(List[T]):
     def __init__(self, items: Optional[List[T]] = None) -> None:
         if items is None:
-            items = List[T]()
+            items = list()
 
         self.data = items
 
@@ -24,3 +24,9 @@ class AcessibleList(List[T]):
 
     def GetNames(self) -> List[str]:
         return [x.GetName() for x in self.data]
+
+    def Extend(self, items: List[T]) -> None:
+        self.data.extend(items)
+
+    def extend(self, items: List[T]) -> None:
+        raise Exception("Don't use this method. Use Extend instead.")

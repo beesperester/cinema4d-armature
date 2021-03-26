@@ -1,6 +1,3 @@
-from typing import Protocol
-
-
-class INamed(Protocol):
+class INamed:
     def GetName(self) -> str:
         return ""

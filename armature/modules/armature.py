@@ -7,9 +7,10 @@ from typing import Generator, List, Optional, Union, Callable, Iterable
 
 from armature.modules.hierarchy import Hierarchy
 from armature.extensions.list import AcessibleList
+from armature.interfaces import INamed
 
 
-class ArmatureAdapter:
+class ArmatureAdapter(INamed):
     def __init__(
         self,
         name: str,
@@ -34,7 +35,7 @@ class ArmatureAdapters(AcessibleList[ArmatureAdapter]):
     """Acessible list of armature adapters"""
 
 
-class ArmatureModule:
+class ArmatureModule(INamed):
     def __init__(
         self,
         name: str,
@@ -72,7 +73,7 @@ class ArmatureModule:
         return self._parent is not None
 
     def Compose(self, modules: ArmatureModules):
-        self._modules.extend(modules)
+        self._modules.Extend(modules)
 
     def Setup(self) -> None:
         pass
