@@ -38,26 +38,26 @@ class Hierarchy:
     def GetChildren(self) -> List[Hierarchy]:
         return self._children
 
-    def GetChild(self, name: str) -> Hierarchy:
+    def GetChild(self, path: str) -> Hierarchy:
         node_names: List[str] = [x.GetName() for x in self.GetChildren()]
 
-        if name in node_names:
-            return self.GetChildren()[node_names.index(name)]
+        parts = path.split("/")
 
-        raise Exception("{} has no child '{}'".format(self.GetName(), name))
+        if len(parts) > 0:
+            name = parts[0]
+
+            if name in node_names:
+                child = self.GetChildren()[node_names.index(name)]
+
+                if len(parts) > 1:
+                    return child.GetChild("/".join(parts[1:]))
+                else:
+                    return child
+
+        raise Exception("{} has no child '{}'".format(self.GetName(), path))
 
     def HasChild(self, name: str) -> bool:
         return name in [x.GetName() for x in self.GetChildren()]
-
-    def GetChildFromPath(self, path: str) -> Hierarchy:
-        parts = path.split("/")
-
-        child = self.GetChild(parts[0])
-
-        if len(parts) > 1:
-            return child.GetChildFromPath("/".join(parts[1:]))
-
-        return child
 
     def GetObject(self) -> c4d.BaseObject:
         return self._op

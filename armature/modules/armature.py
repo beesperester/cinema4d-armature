@@ -22,6 +22,14 @@ class ArmatureAdapter(INamed):
         self._op = op
         self._armature_module = armature_module
 
+    def __repr__(self):
+        return "<{} object '{}@{}' at {}>".format(
+            self.__class__.__name__,
+            self.GetName(),
+            self.GetArmatureModule().GetName(),
+            hex(id(self)),
+        )
+
     def GetName(self) -> str:
         return self._name
 
@@ -49,6 +57,14 @@ class ArmatureModule(INamed):
         self._modules = ArmatureModules()
         self._adapters = adapters
         self._parent = parent
+
+    def __repr__(self):
+        return "<{} object '{}@{}' at {}>".format(
+            self.__class__.__name__,
+            self.GetName(),
+            self.GetHierarchy().GetName(),
+            hex(id(self)),
+        )
 
     def GetName(self) -> str:
         return self._name
@@ -81,13 +97,11 @@ class ArmatureModule(INamed):
 
     def Mount(self) -> None:
         logging.info(
-            "Mount {} '{}'".format(self.__class__.__name__, self.GetName())
+            "Mount '{}@{}'".format(self.GetName(), self.__class__.__name__)
         )
 
         # setup self
         self.Setup()
-
-        print(self.GetModules())
 
         # setup depending modules
         for module in self.GetModules():
