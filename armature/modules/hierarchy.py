@@ -19,21 +19,6 @@ class Hierarchy:
         self._op: c4d.BaseObject = op
         self._children: List[Hierarchy] = children
 
-    def __repr__(self):
-        return "<{} object '{}' at {}>".format(
-            self.__class__.__name__, self.GetName(), hex(id(self))
-        )
-
-    def __getattr__(self, name: str) -> Hierarchy:
-        try:
-            return self.GetChild(name)
-        except Exception:
-            raise AttributeError(
-                "{} has no attribute '{}'".format(
-                    "{}.{}".format(__name__, self.__class__.__name__), name
-                )
-            )
-
     def GetName(self) -> str:
         return self._name
 

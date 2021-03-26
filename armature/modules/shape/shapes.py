@@ -25,11 +25,6 @@ class BaseShape(interfaces.IShape):
         self._name: str = name
         self._validators: List[interfaces.IValidator] = validators
 
-    def __repr__(self):
-        return "<{}.{} object '{}'>".format(
-            __name__, self.__class__.__name__, self.GetName()
-        )
-
     def GetValidators(self) -> List[interfaces.IValidator]:
         return self._validators
 

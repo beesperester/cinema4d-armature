@@ -6,6 +6,7 @@ from collections import UserList
 from typing import Generator, List, Optional, Union, Callable, Iterable
 
 from armature.modules.hierarchy import Hierarchy
+from armature.extensions.list import AcessibleList
 
 
 class ArmatureAdapter:
@@ -19,11 +20,6 @@ class ArmatureAdapter:
         self._op = op
         self._armature_module = armature_module
 
-    def __repr__(self):
-        return "<{} object '{}' at {}>".format(
-            self.__class__.__name__, self.GetName(), hex(id(self))
-        )
-
     def GetName(self) -> str:
         return self._name
 
@@ -34,42 +30,8 @@ class ArmatureAdapter:
         return self._armature_module
 
 
-class ArmatureAdapters(UserList[ArmatureAdapter]):
-    def __init__(
-        self, adapters: Optional[List[ArmatureAdapter]] = None
-    ) -> None:
-        if adapters is None:
-            adapters = List[ArmatureAdapter]()
-
-        self.data = adapters
-
-    def __getattr__(self, name: str) -> ArmatureAdapter:
-        adapter_names = [x.GetName() for x in self.data]
-
-        if name in adapter_names:
-            return self.data[adapter_names.index(name)]
-
-        raise AttributeError(
-            "{} has no attribute '{}'".format(self.__class__.__name__, name)
-        )
-
-
-class ArmatureModules(UserList["ArmatureModule"]):
-    def __init__(self, modules: Optional[List[ArmatureModule]] = None) -> None:
-        if modules is None:
-            modules = List[ArmatureModule]()
-
-        self.data = modules
-
-    def __getattr__(self, name: str) -> ArmatureModule:
-        module_names = [x.GetName() for x in self.data]
-
-        if name in module_names:
-            return self.data[module_names.index(name)]
-
-        raise AttributeError(
-            "{} has no attribute '{}'".format(self.__class__.__name__, name)
-        )
+class ArmatureAdapters(AcessibleList[ArmatureAdapter]):
+    """Acessible list of armature adapters"""
 
 
 class ArmatureModule:
@@ -85,11 +47,6 @@ class ArmatureModule:
         self._modules = ArmatureModules()
         self._adapters = adapters
         self._parent = parent
-
-    def __repr__(self):
-        return "<{} object '{}' at {}>".format(
-            self.__class__.__name__, self.GetName(), hex(id(self))
-        )
 
     def GetName(self) -> str:
         return self._name
@@ -130,15 +87,14 @@ class ArmatureModule:
             module.Mount()
 
 
+class ArmatureModules(AcessibleList[ArmatureModule]):
+    """Acessible list of armature modules"""
+
+
 class Armature:
     def __init__(self, name: str, root: ArmatureModule) -> None:
         self._name = name
         self._root = root
-
-    def __repr__(self):
-        return "<{} object '{}' at {}>".format(
-            self.__class__.__name__, self.GetName(), hex(id(self))
-        )
 
     def GetName(self) -> str:
         return self._name
