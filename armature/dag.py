@@ -4,13 +4,17 @@ from typing import List, Optional
 
 
 class DagItem:
-    def __init__(self, op: c4d.BaseObject) -> None:
+    def __init__(self, op: c4d.BaseObject, name: Optional[str] = None) -> None:
         self._op = op
+        self._name = name
 
     def GetObject(self) -> c4d.BaseObject:
         return self._op
 
     def GetName(self) -> str:
+        if self._name:
+            return self._name
+
         return self.GetObject().GetName()  # type: ignore
 
     def Get(self, path: str) -> "DagItem":

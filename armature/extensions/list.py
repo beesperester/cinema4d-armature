@@ -2,7 +2,6 @@ from typing import Optional, TypeVar, Generic, List, Any, MutableSequence
 
 
 from armature.interfaces import INamed
-from armature.decorators import dont_use
 
 T = TypeVar("T", bound=INamed)
 
