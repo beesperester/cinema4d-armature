@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import c4d
+import logging
 
 from collections import UserList
 from typing import Generator, List, Optional, Union, Callable, Iterable
@@ -72,15 +73,21 @@ class ArmatureModule(INamed):
     def HasParent(self) -> bool:
         return self._parent is not None
 
-    def Compose(self, modules: ArmatureModules):
+    def Compose(self, modules: "ArmatureModules"):
         self._modules.Extend(modules)
 
     def Setup(self) -> None:
         pass
 
     def Mount(self) -> None:
+        logging.info(
+            "Mount {} '{}'".format(self.__class__.__name__, self.GetName())
+        )
+
         # setup self
         self.Setup()
+
+        print(self.GetModules())
 
         # setup depending modules
         for module in self.GetModules():
@@ -92,7 +99,7 @@ class ArmatureModules(AcessibleList[ArmatureModule]):
     """Acessible list of armature modules"""
 
 
-class Armature:
+class Armature(INamed):
     def __init__(self, name: str, root: ArmatureModule) -> None:
         self._name = name
         self._root = root

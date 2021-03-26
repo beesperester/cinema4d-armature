@@ -19,6 +19,14 @@ class Hierarchy:
         self._op: c4d.BaseObject = op
         self._children: List[Hierarchy] = children
 
+    def __repr__(self):
+        return "<{} object '{}' ({}) at {}>".format(
+            self.__class__.__name__,
+            self.GetName(),
+            self.GetObject().GetName(),
+            hex(id(self)),
+        )
+
     def GetName(self) -> str:
         return self._name
 
@@ -37,6 +45,19 @@ class Hierarchy:
             return self.GetChildren()[node_names.index(name)]
 
         raise Exception("{} has no child '{}'".format(self.GetName(), name))
+
+    def HasChild(self, name: str) -> bool:
+        return name in [x.GetName() for x in self.GetChildren()]
+
+    def GetChildFromPath(self, path: str) -> Hierarchy:
+        parts = path.split("/")
+
+        child = self.GetChild(parts[0])
+
+        if len(parts) > 1:
+            return child.GetChildFromPath("/".join(parts[1:]))
+
+        return child
 
     def GetObject(self) -> c4d.BaseObject:
         return self._op
