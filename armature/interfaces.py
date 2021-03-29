@@ -2,12 +2,7 @@ import c4d
 
 from typing import Optional, List
 
-from armature.hierarchy import Hierarchy
-
-
-class INamed:
-    def GetName(self) -> str:
-        return ""
+from armature import dag
 
 
 class IValidator:
@@ -15,25 +10,17 @@ class IValidator:
     This class represents a Validatorr Interface
     """
 
-    def Validate(self, op: c4d.BaseObject) -> bool:
-        raise NotImplementedError
-
-
-class IShape:
-    """
-    This class represents a Shape Interface
-    """
-
-    def __init__(
-        self, name: str, validators: Optional[List[IValidator]] = None
-    ) -> None:
-        raise NotImplementedError
-
-    def GetValidators(self) -> List[IValidator]:
-        raise NotImplementedError
-
     def GetName(self) -> str:
         raise NotImplementedError
 
-    def Extract(self, op: c4d.BaseObject) -> Hierarchy:
+    def Validate(self, base_object: dag.DagObject) -> None:
+        raise NotImplementedError
+
+
+class IValidationRule:
+    """
+    This class represents a Validation Rule Interface
+    """
+
+    def Test(self, validator: IValidator, base_object: dag.DagObject) -> bool:
         raise NotImplementedError
