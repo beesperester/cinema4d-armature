@@ -2,7 +2,7 @@ import c4d
 import typing
 import fnmatch
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 
 class DagObject:
@@ -119,3 +119,31 @@ def DagObjectFromBaseObject(op: c4d.BaseObject) -> DagObject:
 
 def DagObjectsFromBaseObjects(items: List[c4d.BaseObject]) -> DagObjects:
     return DagObjects([DagObject(x) for x in items])
+
+
+def SerializeVectorAsDict(vector: c4d.Vector) -> Dict[str, float]:
+    return {"x": vector.x, "y": vector.y, "z": vector.z}
+
+
+def SerializeMatrixAsDict(matrix: c4d.Matrix) -> Dict[str, Dict]:
+    return {
+        "off": SerializeVectorAsDict(matrix.off),
+        "v1": SerializeVectorAsDict(matrix.v1),
+        "v2": SerializeVectorAsDict(matrix.v2),
+        "v3": SerializeVectorAsDict(matrix.v3),
+    }
+
+
+def SerializeDagObjectAsDict(item: DagObject) -> Dict[str, Any]:
+    base_object = item.GetObject()
+
+    return {
+        "name": base_object.GetName(),
+        "type": base_object.GetType(),
+        "matrix": SerializeMatrixAsDict(base_object.GetMg()),
+        "children": SerializeDagObjectsAsList(item.GetChildren()),
+    }
+
+
+def SerializeDagObjectsAsList(items: DagObjects) -> List[Dict]:
+    return [SerializeDagObjectAsDict(x) for x in items]
