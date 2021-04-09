@@ -106,11 +106,15 @@ class DagObjects:
             )
         )
 
-    def Extend(self, dag_objects: "DagObjects") -> None:
+    def Extend(self, dag_objects: "DagObjects") -> "DagObjects":
         self._items.extend(dag_objects._items)
 
-    def Append(self, dag_object: DagObject) -> None:
+        return self
+
+    def Append(self, dag_object: DagObject) -> "DagObjects":
         self._items.append(dag_object)
+
+        return self
 
 
 def DagObjectFromBaseObject(op: c4d.BaseObject) -> DagObject:
@@ -122,15 +126,15 @@ def DagObjectsFromBaseObjects(items: List[c4d.BaseObject]) -> DagObjects:
 
 
 def SerializeVectorAsDict(vector: c4d.Vector) -> Dict[str, float]:
-    return {"x": vector.x, "y": vector.y, "z": vector.z}
+    return {"x": vector.x, "y": vector.y, "z": vector.z}  # type: ignore
 
 
 def SerializeMatrixAsDict(matrix: c4d.Matrix) -> Dict[str, Dict]:
     return {
-        "off": SerializeVectorAsDict(matrix.off),
-        "v1": SerializeVectorAsDict(matrix.v1),
-        "v2": SerializeVectorAsDict(matrix.v2),
-        "v3": SerializeVectorAsDict(matrix.v3),
+        "off": SerializeVectorAsDict(matrix.off),  # type: ignore
+        "v1": SerializeVectorAsDict(matrix.v1),  # type: ignore
+        "v2": SerializeVectorAsDict(matrix.v2),  # type: ignore
+        "v3": SerializeVectorAsDict(matrix.v3),  # type: ignore
     }
 
 
@@ -140,10 +144,25 @@ def SerializeDagObjectAsDict(item: DagObject) -> Dict[str, Any]:
     return {
         "name": base_object.GetName(),
         "type": base_object.GetType(),
-        "matrix": SerializeMatrixAsDict(base_object.GetMg()),
+        "matrix": SerializeMatrixAsDict(base_object.GetMg()),  # type: ignore
         "children": SerializeDagObjectsAsList(item.GetChildren()),
     }
 
 
 def SerializeDagObjectsAsList(items: DagObjects) -> List[Dict]:
     return [SerializeDagObjectAsDict(x) for x in items]
+
+
+def CreateDagObject(
+    name: str, object_type: int, children: Optional[DagObjects] = None
+) -> DagObject:
+    if children is None:
+        children = DagObjects()
+
+    base_object = c4d.BaseObject(object_type)
+    base_object.SetName(name)
+
+    for child in children:
+        child.GetObject().InsertUnder(base_object)
+
+    return DagObjectFromBaseObject(base_object)
