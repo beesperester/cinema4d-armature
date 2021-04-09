@@ -28,6 +28,11 @@ class ArmatureModule:
     def GetModules(self) -> typing.List["ArmatureModule"]:
         return self._modules
 
+    def _Setup(self) -> None:
+        logging.info("Setup '{}'".format(self.__class__.__name__))
+
+        self.Setup()
+
     def Setup(self) -> None:
         raise NotImplementedError
 
@@ -35,7 +40,7 @@ class ArmatureModule:
         logging.info("Mount '{}'".format(self.__class__.__name__))
 
         # setup self
-        self.Setup()
+        self._Setup()
 
         # setup depending modules
         for module in self.GetModules():
@@ -50,6 +55,4 @@ class Armature:
         return self._root_module
 
     def Mount(self):
-        logging.info("Mount '{}'".format(self.__class__.__name__))
-
         self.GetRoot().Mount()
