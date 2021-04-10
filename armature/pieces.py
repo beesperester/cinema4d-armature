@@ -31,7 +31,7 @@ class ArmatureModule:
         return self._modules
 
     def _PreSetup(self) -> None:
-        logging.info("Prevalidate '{}'".format(self.__class__.__name__))
+        logging.info("PreSetup '{}'".format(self.__class__.__name__))
 
         self.PreSetup()
 
