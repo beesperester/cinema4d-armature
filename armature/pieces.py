@@ -2,6 +2,8 @@ from sys import modules
 import typing
 import logging
 
+from c4d.symbols import GL_PASS_DISPLACE_BUMP
+
 from armature import dag
 
 
@@ -28,19 +30,39 @@ class ArmatureModule:
     def GetModules(self) -> typing.List["ArmatureModule"]:
         return self._modules
 
+    def _PreSetup(self) -> None:
+        logging.info("Prevalidate '{}'".format(self.__class__.__name__))
+
+        self.PreSetup()
+
     def _Setup(self) -> None:
         logging.info("Setup '{}'".format(self.__class__.__name__))
 
         self.Setup()
 
+    def _PostSetup(self) -> None:
+        logging.info("PostSetup '{}'".format(self.__class__.__name__))
+
+        self.PostSetup()
+
+    def PreSetup(self) -> None:
+        pass
+
     def Setup(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError()
+
+    def PostSetup(self) -> None:
+        pass
 
     def Mount(self) -> None:
         logging.info("Mount '{}'".format(self.__class__.__name__))
 
         # setup self
+        self._PreSetup()
+
         self._Setup()
+
+        self._PostSetup()
 
         # setup depending modules
         for module in self.GetModules():
