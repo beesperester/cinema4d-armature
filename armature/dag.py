@@ -146,7 +146,16 @@ def SerializeDagObjectAsDict(item: DagObject) -> Dict[str, Any]:
         "type": base_object.GetType(),
         "matrix": SerializeMatrixAsDict(base_object.GetMg()),  # type: ignore
         "children": SerializeDagObjectsAsList(item.GetChildren()),
+        "tags": SerializeTagObjectsAsList(base_object.GetTags()),  # type: ignore
     }
+
+
+def SerializeTagObjectAsDict(tag: c4d.BaseTag) -> Dict[str, Any]:
+    return {}
+
+
+def SerializeTagObjectsAsList(tags: List[c4d.BaseTag]) -> List[Dict[str, Any]]:
+    return [SerializeTagObjectAsDict(x) for x in tags]
 
 
 def SerializeDagObjectsAsList(items: DagObjects) -> List[Dict]:
