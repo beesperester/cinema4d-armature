@@ -17,6 +17,8 @@ class ArmatureModule:
         self._dag_object = dag_object
         self._adapters = adapters
         self._modules = modules
+        self._effects_objects = dag.DagObjects()
+        # self._effects_tags =
 
     def GetDagObject(self) -> dag.DagObject:
         return self._dag_object
@@ -28,42 +30,66 @@ class ArmatureModule:
         return self._modules
 
     def _PreSetup(self) -> None:
-        logging.info("PreSetup '{}'".format(self.__class__.__name__))
+        logging.info(f"{self.__class__.__name__}::PreSetup")
 
         self.PreSetup()
 
     def _Setup(self) -> None:
-        logging.info("Setup '{}'".format(self.__class__.__name__))
+        logging.info(f"{self.__class__.__name__}::Setup")
 
         self.Setup()
 
     def _PostSetup(self) -> None:
-        logging.info("PostSetup '{}'".format(self.__class__.__name__))
+        logging.info(f"{self.__class__.__name__}::PostSetup")
 
         self.PostSetup()
 
+    def _TearDown(self) -> None:
+        logging.info(f"{self.__class__.__name__}::TearDown")
+
+        self.TearDown()
+
     def PreSetup(self) -> None:
+        # will be called before the actual setup
+        # place anything that needs to be prepared
+        # or done before in here like validation
         pass
 
     def Setup(self) -> None:
         raise NotImplementedError()
 
     def PostSetup(self) -> None:
+        # will be called after the actual setup
+        # place anything that needs to be prepared
+        # or done after in here like validation
+        pass
+
+    def TearDown(self) -> None:
+        # this will be called in the case of an exception
+        # thrown during the mount process and should be used
+        # to clean up any effects
         pass
 
     def Mount(self) -> None:
-        logging.info("Mount '{}'".format(self.__class__.__name__))
+        logging.info(f"{self.__class__.__name__}::Mount")
 
-        # setup self
-        self._PreSetup()
+        try:
+            # setup self
+            self._PreSetup()
 
-        self._Setup()
+            self._Setup()
 
-        self._PostSetup()
+            self._PostSetup()
 
-        # setup depending modules
-        for module in self.GetModules():
-            module.Mount()
+            # setup depending modules
+            for module in self.GetModules():
+                module.Mount()
+        except Exception as e:
+            # teardown self
+            self._TearDown()
+
+            # re-raise exception to teardown nested effects
+            raise e
 
 
 class Armature:
