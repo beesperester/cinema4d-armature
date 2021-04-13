@@ -10,6 +10,10 @@ from typing import List, Optional, Dict, Any, TypeVar, Generic
 T = TypeVar("T", bound=c4d.BaseList2D, contravariant=True)
 
 
+class DagNotFoundError(Exception):
+    pass
+
+
 class DagBaseList2D(Generic[T]):
     def __init__(self, item: T) -> None:
         self.item = item
@@ -28,10 +32,10 @@ class DagBaseList2D(Generic[T]):
     def GetType(self) -> int:
         return self.item.GetType()  # type: ignore
 
-    def GetChildren(self) -> DagList[T]:
+    def GetChildren(self) -> DagBaseList2DList[T]:
         children: List[T] = self.item.GetChildren()  # type: ignore
 
-        return DagList([DagBaseList2D(x) for x in children])
+        return DagBaseList2DList(children)
 
     def GetChild(self, path: str) -> DagBaseList2D[T]:
         return self.GetChildren().Get(path)
@@ -41,12 +45,12 @@ class DagBaseObject(DagBaseList2D[c4d.BaseObject]):
     def GetChildren(self) -> DagBaseObjectList:
         children: List[c4d.BaseObject] = self.item.GetChildren()  # type: ignore
 
-        return DagBaseObjectList([DagBaseObject(x) for x in children])
+        return DagBaseObjectList(children)
 
     def GetTags(self) -> DagBaseTagList:
         tags: List[c4d.BaseTag] = self.item.GetTags()  # type: ignore
 
-        return DagBaseTagList([DagBaseTag(x) for x in tags])
+        return DagBaseTagList(tags)
 
     # def GetTag(self, path: str) -> DagBaseTag:
     #     return self.GetTags().Get(path)
@@ -56,8 +60,8 @@ class DagBaseTag(DagBaseList2D[c4d.BaseTag]):
     pass
 
 
-class DagList(Generic[T]):
-    def __init__(self, items: Optional[List[DagBaseList2D[T]]] = None) -> None:
+class DagBaseList2DList(Generic[T]):
+    def __init__(self, items: Optional[List[T]] = None) -> None:
         if items is None:
             items = []
 
@@ -75,15 +79,18 @@ class DagList(Generic[T]):
 
             self._n += 1
 
-            return result
+            return self._Wrap(result)
         else:
             raise StopIteration
 
     def __getitem__(self, index: int) -> DagBaseList2D[T]:
-        return self.items[index]
+        return self._Wrap(self.items[index])
+
+    def _Wrap(self, item: T) -> DagBaseList2D[T]:
+        return DagBaseList2D(item)
 
     def Get(self, path: str) -> DagBaseList2D[T]:
-        names: List[str] = [x.GetName() for x in self.items]  # type: ignore
+        names: List[str] = [x.GetName() for x in self]  # type: ignore
 
         parts = path.split("/")
 
@@ -106,27 +113,25 @@ class DagList(Generic[T]):
             # use child index to retrieve base object
             # if child index is larger -1
             if child_index > -1:
-                child = self.items[child_index]
+                child = self[child_index]
 
                 if len(parts) > 1:
                     return child.GetChild("/".join(parts[1:]))
                 else:
                     return child
 
-        raise Exception(
-            "'{}' has no child object called '{}'".format(
-                self.__class__.__name__, path
-            )
+        raise DagNotFoundError(
+            f"'{self.__class__.__name__}' has no child object called '{path}'"
         )
 
-    def Extend(self, items: DagList) -> None:
+    def Extend(self, items: DagBaseList2DList[T]) -> None:
         self.items.extend(items.items)
 
     def Append(self, item: DagBaseList2D[T]) -> None:
-        self.items.append(item)
+        self.items.append(item.item)
 
 
-class DagBaseObjectList(DagList[c4d.BaseObject]):
+class DagBaseObjectList(DagBaseList2DList[c4d.BaseObject]):
     def __getitem__(self, index: int) -> DagBaseObject:
         return DagBaseObject(super().__getitem__(index).item)
 
@@ -140,7 +145,7 @@ class DagBaseObjectList(DagList[c4d.BaseObject]):
         return DagBaseObject(super().Get(path).item)
 
 
-class DagBaseTagList(DagList[c4d.BaseTag]):
+class DagBaseTagList(DagBaseList2DList[c4d.BaseTag]):
     def __getitem__(self, index: int) -> DagBaseTag:
         return DagBaseTag(super().__getitem__(index).item)
 
