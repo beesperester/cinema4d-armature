@@ -47,13 +47,16 @@ class DagBaseObject(DagBaseList2D[c4d.BaseObject]):
 
         return DagBaseObjectList(children)
 
+    def GetChild(self, path: str) -> DagBaseObject:
+        return DagBaseObject(super().GetChild(path).item)
+
     def GetTags(self) -> DagBaseTagList:
         tags: List[c4d.BaseTag] = self.item.GetTags()  # type: ignore
 
         return DagBaseTagList(tags)
 
-    # def GetTag(self, path: str) -> DagBaseTag:
-    #     return self.GetTags().Get(path)
+    def GetTag(self, path: str) -> DagBaseTag:
+        return self.GetTags().Get(path)
 
 
 class DagBaseTag(DagBaseList2D[c4d.BaseTag]):
@@ -79,14 +82,14 @@ class DagBaseList2DList(Generic[T]):
 
             self._n += 1
 
-            return self._Wrap(result)
+            return self.__wrapitem__(result)
         else:
             raise StopIteration
 
     def __getitem__(self, index: int) -> DagBaseList2D[T]:
-        return self._Wrap(self.items[index])
+        return self.__wrapitem__(self.items[index])
 
-    def _Wrap(self, item: T) -> DagBaseList2D[T]:
+    def __wrapitem__(self, item: T) -> DagBaseList2D[T]:
         return DagBaseList2D(item)
 
     def Get(self, path: str) -> DagBaseList2D[T]:
@@ -135,6 +138,9 @@ class DagBaseObjectList(DagBaseList2DList[c4d.BaseObject]):
     def __getitem__(self, index: int) -> DagBaseObject:
         return DagBaseObject(super().__getitem__(index).item)
 
+    def __wrapitem__(self, item: c4d.BaseObject) -> DagBaseObject:
+        return DagBaseObject(item)
+
     def Extend(self, items: DagBaseObjectList) -> None:
         return super().Extend(items)
 
@@ -148,6 +154,9 @@ class DagBaseObjectList(DagBaseList2DList[c4d.BaseObject]):
 class DagBaseTagList(DagBaseList2DList[c4d.BaseTag]):
     def __getitem__(self, index: int) -> DagBaseTag:
         return DagBaseTag(super().__getitem__(index).item)
+
+    def __wrapitem__(self, item: c4d.BaseTag) -> DagBaseTag:
+        return DagBaseTag(item)
 
     def Extend(self, items: DagBaseTagList) -> None:
         return super().Extend(items)
