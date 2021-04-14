@@ -7,8 +7,8 @@ from armature import dag
 class ArmatureModule:
     def __init__(
         self,
-        dag_object: dag.DagObject,
-        adapters: dag.DagObjects,
+        dag_object: dag.DagBaseObject,
+        adapters: dag.DagBaseObjectList,
         modules: typing.Optional[typing.List["ArmatureModule"]] = None,
     ) -> None:
         if modules is None:
@@ -17,14 +17,35 @@ class ArmatureModule:
         self._dag_object = dag_object
         self._adapters = adapters
         self._modules = modules
-        self._effects_objects = dag.DagObjects()
-        # self._effects_tags =
+        self._objects_effects = dag.DagBaseObjectList()
+        self._tags_effects = dag.DagBaseTagList()
 
-    def GetDagObject(self) -> dag.DagObject:
+    def GetCreateObjectCallback(
+        self,
+    ) -> typing.Callable[[dag.DagBaseObject], None]:
+        def Callback(dagbaseobject: dag.DagBaseObject) -> None:
+            self.GetAdapters().Append(dagbaseobject)
+            self.GetObjectsEffects().Append(dagbaseobject)
+
+        return Callback
+
+    def GetCreateTagCallback(self) -> typing.Callable[[dag.DagBaseTag], None]:
+        def Callback(dagbasetag: dag.DagBaseTag) -> None:
+            self.GetTagsEffects().Append(dagbasetag)
+
+        return Callback
+
+    def GetDagObject(self) -> dag.DagBaseObject:
         return self._dag_object
 
-    def GetAdapters(self) -> dag.DagObjects:
+    def GetAdapters(self) -> dag.DagBaseObjectList:
         return self._adapters
+
+    def GetObjectsEffects(self) -> dag.DagBaseObjectList:
+        return self._objects_effects
+
+    def GetTagsEffects(self) -> dag.DagBaseTagList:
+        return self._tags_effects
 
     def GetModules(self) -> typing.List["ArmatureModule"]:
         return self._modules
