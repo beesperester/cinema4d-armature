@@ -40,6 +40,11 @@ class DagBaseList2D(Generic[T]):
     def GetChild(self, path: str) -> DagBaseList2D[T]:
         return self.GetChildren().Get(path)
 
+    def GetParent(self) -> DagBaseList2D[T]:
+        parent: T = self.item.GetUp()  # type: ignore
+
+        return DagBaseList2D(parent)
+
 
 class DagBaseObject(DagBaseList2D[c4d.BaseObject]):
     def GetChildren(self) -> DagBaseObjectList:
@@ -49,6 +54,9 @@ class DagBaseObject(DagBaseList2D[c4d.BaseObject]):
 
     def GetChild(self, path: str) -> DagBaseObject:
         return DagBaseObject(super().GetChild(path).item)
+
+    def GetParent(self) -> DagBaseObject:
+        return DagBaseObject(super().GetParent().item)
 
     def GetTags(self) -> DagBaseTagList:
         tags: List[c4d.BaseTag] = self.item.GetTags()  # type: ignore
@@ -166,122 +174,6 @@ class DagBaseTagList(DagBaseList2DList[c4d.BaseTag]):
 
     def Get(self, path: str) -> DagBaseTag:
         return DagBaseTag(super().Get(path).item)
-
-
-# class DagTag(DagBaseList2D[c4d.BaseTag]):
-#     pass
-
-
-# class DagObject(DagBaseList2D[c4d.BaseObject]):
-#     def GetChild(self, path: str) -> "DagObject":
-#         return self.GetChildren().Get(path)
-
-#     def GetTag(self, name: str) -> DagTag:
-#         return self.GetTags().Get(name)
-
-#     def GetRecursive(
-#         self, path: str
-#     ) -> typing.Generator[DagObject, None, None]:
-#         try:
-#             child = self.GetChild(path)
-
-#             yield child
-
-#             yield from child.GetRecursive(path)
-#         except Exception:
-#             pass
-
-#     def GetChildren(self) -> DagObjects:
-#         children: List[c4d.BaseObject] = self.GetObject().GetChildren()  # type: ignore
-
-#         return DagObjectsFromBaseObjects(children)
-
-#     def GetTags(self) -> DagTags:
-#         tags: List[c4d.BaseTag] = self.GetObject().GetTags()  # type: ignore
-
-#         return DagTags([DagTag(x) for x in tags])
-
-
-# class DagList(Generic[T]):
-#     def __init__(self, items: Optional[List[T]] = None) -> None:
-#         if items is None:
-#             items = []
-
-#         self._items = items
-#         self._n = 0
-
-#     def __iter__(self):
-#         self._n = 0
-
-#         return self
-
-#     def __next__(self) -> T:
-#         if self._n < len(self._items):
-#             result = self._items[self._n]
-
-#             self._n += 1
-
-#             return result
-#         else:
-#             raise StopIteration
-
-#     def __getitem__(self, index: int) -> T:
-#         return self._items[index]
-
-#     def Get(self, path: str) -> T:
-#         raise NotImplementedError()
-
-#     def Extend(self, items: DagList) -> None:
-#         self._items.extend(items._items)
-
-#     def Append(self, item: T) -> None:
-#         self._items.append(item)
-
-
-# class DagTags(DagList[c4d.BaseTag]):
-#     def Get(self, path: str) -> DagTag:
-#         tag_names: List[str] = [x.GetTag().GetName() for x in self._items]
-
-
-# class DagObjects(DagList[DagObject]):
-#     def Get(self, path: str) -> DagObject:
-#         child_names: List[str] = [
-#             x.GetObject().GetName() for x in self._items
-#         ]  # type: ignore
-
-#         parts = path.split("/")
-
-#         if len(parts) > 0:
-#             name = parts[0]
-#             child_index = -1
-
-#             # use fnmatch against the list of child names
-#             # if name contains an asterisk
-#             if "*" in name:
-#                 matching_child_names = fnmatch.filter(child_names, name)
-
-#                 if matching_child_names:
-#                     child_index = child_names.index(matching_child_names[0])
-#             # use name as is against list of child names
-#             else:
-#                 if name in child_names:
-#                     child_index = child_names.index(name)
-
-#             # use child index to retrieve base object
-#             # if child index is larger -1
-#             if child_index > -1:
-#                 child = self._items[child_index]
-
-#                 if len(parts) > 1:
-#                     return child.GetChild("/".join(parts[1:]))
-#                 else:
-#                     return child
-
-#         raise Exception(
-#             "'{}' has no child object called '{}'".format(
-#                 self.__class__.__name__, path
-#             )
-#         )
 
 
 # def DagObjectFromBaseObject(op: c4d.BaseObject) -> DagObject:

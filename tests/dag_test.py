@@ -123,6 +123,22 @@ class TestDagBaseList2D(unittest.TestCase):
 
         self.assertEqual(result, result_expected)
 
+    def test_GetParent(self):
+        asset_object = create_example_dagbaselist2d()
+
+        child = asset_object.GetChild("Geo_Grp")
+
+        parent = child.GetParent()
+
+        # assert resulting instance
+        self.assertIsInstance(parent, dag.DagBaseList2D)
+
+        # assert name of resulting parent
+        result = parent.GetName()
+        result_expected = "Asset_Grp"
+
+        self.assertEqual(result, result_expected)
+
 
 class TestDagBaseObject(unittest.TestCase):
     def test_GetChildren(self):
@@ -150,6 +166,22 @@ class TestDagBaseObject(unittest.TestCase):
         # assert name of resulting child
         result = child.GetName()
         result_expected = "Geo_Grp"
+
+        self.assertEqual(result, result_expected)
+
+    def test_GetParent(self):
+        asset_object = create_example_dagbaseobject()
+
+        child = asset_object.GetChild("Geo_Grp")
+
+        parent = child.GetParent()
+
+        # assert resulting instance
+        self.assertIsInstance(parent, dag.DagBaseObject)
+
+        # assert name of resulting parent
+        result = parent.GetName()
+        result_expected = "Asset_Grp"
 
         self.assertEqual(result, result_expected)
 
