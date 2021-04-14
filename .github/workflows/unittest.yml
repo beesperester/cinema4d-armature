@@ -21,4 +21,4 @@ jobs:
         pycodestyle armature --show-source --ignore E501
     - name: Test with coverage and unittest
       run: |
-        "$C4DPY" -m unittest discover -v -s $PWD/tests -p "*_test.py"
+        c4dpy -m unittest discover -v -s $PWD/tests -p "*_test.py"
