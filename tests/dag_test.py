@@ -70,6 +70,21 @@ class TestDagBaseList2D(unittest.TestCase):
 
         self.assertEqual(result, result_expected)
 
+    def test_GetRecursive(self):
+        asset_object = utilities.create_example_recursive_dagbaselist2d()
+
+        result = []
+
+        for child in asset_object.GetRecursive("Spine_*_Grp"):
+            # assert resulting instance
+            self.assertIsInstance(child, dag.DagBaseList2D)
+
+            result.append(child.GetName())
+
+        result_expected = ["Spine_2_Grp", "Spine_3_Grp", "Spine_4_Grp"]
+
+        self.assertListEqual(result, result_expected)
+
 
 class TestDagBaseObject(unittest.TestCase):
     def test_GetChildren(self):
@@ -143,6 +158,21 @@ class TestDagBaseObject(unittest.TestCase):
         result_expected = "Asset_Constraint"
 
         self.assertEqual(result, result_expected)
+
+    def test_GetRecursive(self):
+        asset_object = utilities.create_example_recursive_dagbaseobject()
+
+        result = []
+
+        for child in asset_object.GetRecursive("Spine_*_Grp"):
+            # assert resulting instance
+            self.assertIsInstance(child, dag.DagBaseObject)
+
+            result.append(child.GetName())
+
+        result_expected = ["Spine_2_Grp", "Spine_3_Grp", "Spine_4_Grp"]
+
+        self.assertListEqual(result, result_expected)
 
 
 class TestDagBaseList2DList(unittest.TestCase):

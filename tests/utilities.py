@@ -32,12 +32,39 @@ def create_example_baseobject():
     return asset_object
 
 
+def create_example_recursive_baseobject():
+    spine_1_object = c4d.BaseObject(c4d.Onull)
+    spine_1_object.SetName("Spine_1_Grp")
+
+    spine_2_object = c4d.BaseObject(c4d.Onull)
+    spine_2_object.SetName("Spine_2_Grp")
+    spine_2_object.InsertUnder(spine_1_object)
+
+    spine_3_object = c4d.BaseObject(c4d.Onull)
+    spine_3_object.SetName("Spine_3_Grp")
+    spine_3_object.InsertUnder(spine_2_object)
+
+    spine_4_object = c4d.BaseObject(c4d.Onull)
+    spine_4_object.SetName("Spine_4_Grp")
+    spine_4_object.InsertUnder(spine_3_object)
+
+    return spine_1_object
+
+
 def create_example_dagbaselist2d():
     return dag.DagBaseList2D(create_example_baseobject())
 
 
+def create_example_recursive_dagbaselist2d():
+    return dag.DagBaseList2D(create_example_recursive_baseobject())
+
+
 def create_example_dagbaseobject():
     return dag.DagBaseObject(create_example_baseobject())
+
+
+def create_example_recursive_dagbaseobject():
+    return dag.DagBaseObject(create_example_recursive_baseobject())
 
 
 def create_example_baseobjects_list():

@@ -4,7 +4,7 @@ import c4d
 import typing
 import fnmatch
 
-from typing import List, Optional, Dict, Any, TypeVar, Generic
+from typing import Generator, List, Optional, Dict, Any, TypeVar, Generic
 
 
 T = TypeVar("T", bound=c4d.BaseList2D, contravariant=True)
@@ -44,6 +44,18 @@ class DagBaseList2D(Generic[T]):
         parent: T = self.item.GetUp()  # type: ignore
 
         return DagBaseList2D(parent)
+
+    def GetRecursive(
+        self, path: str
+    ) -> Generator[DagBaseList2D[T], None, None]:
+        child = self.GetChild(path)
+
+        yield child
+
+        try:
+            yield from child.GetRecursive(path)
+        except DagNotFoundError:
+            pass
 
 
 class DagBaseObject(DagBaseList2D[c4d.BaseObject]):
