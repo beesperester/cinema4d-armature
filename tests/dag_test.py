@@ -4,81 +4,12 @@ import unittest
 from typing import List
 
 from armature import dag
-
-
-def create_example_base_object():
-    asset_object = c4d.BaseObject(c4d.Onull)
-    asset_object.SetName("Asset_Grp")
-
-    asset_constraint_tag = asset_object.MakeTag(1019364)  # type: ignore
-    asset_constraint_tag.SetName("Asset_Constraint")
-
-    rig_object = c4d.BaseObject(c4d.Onull)
-    rig_object.SetName("Rig_Grp")
-    rig_object.InsertUnder(asset_object)
-
-    ctrls_object = c4d.BaseObject(c4d.Onull)
-    ctrls_object.SetName("Ctrls_Grp")
-    ctrls_object.InsertUnder(rig_object)
-
-    joints_object = c4d.BaseObject(c4d.Onull)
-    joints_object.SetName("Joints_Grp")
-    joints_object.InsertUnder(rig_object)
-
-    geo_object = c4d.BaseObject(c4d.Onull)
-    geo_object.SetName("Geo_Grp")
-    geo_object.InsertUnder(asset_object)
-
-    return asset_object
-
-
-def create_example_dagbaselist2d():
-    return dag.DagBaseList2D(create_example_base_object())
-
-
-def create_example_dagbaseobject():
-    return dag.DagBaseObject(create_example_base_object())
-
-
-def create_example_base_objects_list():
-    base_objects_list: List[c4d.BaseObject] = []
-
-    for i in range(0, 10):
-        base_object = c4d.BaseObject(c4d.Onull)
-        base_object.SetName("BaseObject_{}_Null".format(i + 1))
-
-        base_objects_list.append(base_object)
-
-    return base_objects_list
-
-
-def create_example_dagbaselist2dlist():
-    return dag.DagBaseList2DList(create_example_base_objects_list())
-
-
-def create_example_dagbaseobjectlist():
-    return dag.DagBaseObjectList(create_example_base_objects_list())
-
-
-def create_example_base_tags_list():
-    base_tags_list: List[c4d.BaseTag] = []
-
-    for i in range(0, 10):
-        base_tag = c4d.BaseTag(1019364)
-        base_tag.SetName("BaseTag_{}_Constraint".format(i + 1))
-
-        base_tags_list.append(base_tag)
-
-    return base_tags_list
-
-
-def create_example_dagbasetaglist():
-    return dag.DagBaseTagList(create_example_base_tags_list())
+from tests import utilities
 
 
 class TestDagBaseList2D(unittest.TestCase):
     def test_GetName(self):
-        asset_object = create_example_dagbaselist2d()
+        asset_object = utilities.create_example_dagbaselist2d()
 
         # assert resulting name
         result = asset_object.GetName()
@@ -87,7 +18,7 @@ class TestDagBaseList2D(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_GetType(self):
-        asset_object = create_example_dagbaselist2d()
+        asset_object = utilities.create_example_dagbaselist2d()
 
         # assert resulting type
         result = asset_object.GetType()
@@ -96,7 +27,7 @@ class TestDagBaseList2D(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_GetChildren(self):
-        asset_object = create_example_dagbaselist2d()
+        asset_object = utilities.create_example_dagbaselist2d()
 
         # assert resulting instance
         self.assertIsInstance(
@@ -110,7 +41,7 @@ class TestDagBaseList2D(unittest.TestCase):
         self.assertListEqual(result, result_expected)
 
     def test_GetChild(self):
-        asset_object = create_example_dagbaselist2d()
+        asset_object = utilities.create_example_dagbaselist2d()
 
         child = asset_object.GetChild("Geo_Grp")
 
@@ -124,7 +55,7 @@ class TestDagBaseList2D(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_GetParent(self):
-        asset_object = create_example_dagbaselist2d()
+        asset_object = utilities.create_example_dagbaselist2d()
 
         child = asset_object.GetChild("Geo_Grp")
 
@@ -142,7 +73,7 @@ class TestDagBaseList2D(unittest.TestCase):
 
 class TestDagBaseObject(unittest.TestCase):
     def test_GetChildren(self):
-        asset_object = create_example_dagbaseobject()
+        asset_object = utilities.create_example_dagbaseobject()
 
         # assert resulting instance
         self.assertIsInstance(
@@ -156,7 +87,7 @@ class TestDagBaseObject(unittest.TestCase):
         self.assertListEqual(result, result_expected)
 
     def test_GetChild(self):
-        asset_object = create_example_dagbaseobject()
+        asset_object = utilities.create_example_dagbaseobject()
 
         child = asset_object.GetChild("Geo_Grp")
 
@@ -170,7 +101,7 @@ class TestDagBaseObject(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_GetParent(self):
-        asset_object = create_example_dagbaseobject()
+        asset_object = utilities.create_example_dagbaseobject()
 
         child = asset_object.GetChild("Geo_Grp")
 
@@ -186,7 +117,7 @@ class TestDagBaseObject(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_GetTags(self):
-        asset_object = create_example_dagbaseobject()
+        asset_object = utilities.create_example_dagbaseobject()
 
         tags = asset_object.GetTags()
 
@@ -200,7 +131,7 @@ class TestDagBaseObject(unittest.TestCase):
         self.assertListEqual(result, result_excpected)
 
     def test_GetTag(self):
-        asset_object = create_example_dagbaseobject()
+        asset_object = utilities.create_example_dagbaseobject()
 
         tag = asset_object.GetTag("Asset_Constraint")
 
@@ -216,7 +147,7 @@ class TestDagBaseObject(unittest.TestCase):
 
 class TestDagBaseList2DList(unittest.TestCase):
     def test___iter__(self):
-        example_list = create_example_dagbaselist2dlist()
+        example_list = utilities.create_example_dagbaselist2dlist()
 
         result = []
 
@@ -233,7 +164,7 @@ class TestDagBaseList2DList(unittest.TestCase):
         self.assertListEqual(result, result_expected)
 
     def test___getitem__(self):
-        example_list = create_example_dagbaselist2dlist()
+        example_list = utilities.create_example_dagbaselist2dlist()
 
         item = example_list[0]
 
@@ -247,7 +178,7 @@ class TestDagBaseList2DList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Get(self):
-        example_list = create_example_dagbaselist2dlist()
+        example_list = utilities.create_example_dagbaselist2dlist()
 
         item = example_list.Get("BaseObject_2_Null")
 
@@ -261,13 +192,13 @@ class TestDagBaseList2DList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Get_raise_DagNotFoundError(self):
-        example_list = create_example_dagbaselist2dlist()
+        example_list = utilities.create_example_dagbaselist2dlist()
 
         with self.assertRaises(dag.DagNotFoundError):
             example_list.Get("YouCanNotFindMe")
 
     def test_Extend(self):
-        example_list = create_example_dagbaselist2dlist()
+        example_list = utilities.create_example_dagbaselist2dlist()
 
         new_object = c4d.BaseList2D(c4d.Onull)
         new_object.SetName("NewItem_Null")
@@ -282,7 +213,7 @@ class TestDagBaseList2DList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Append(self):
-        example_list = create_example_dagbaselist2dlist()
+        example_list = utilities.create_example_dagbaselist2dlist()
 
         new_object = c4d.BaseList2D(c4d.Onull)
         new_object.SetName("NewItem_Null")
@@ -297,7 +228,7 @@ class TestDagBaseList2DList(unittest.TestCase):
 
 class TestDagBaseObjectList(unittest.TestCase):
     def test___iter__(self):
-        example_list = create_example_dagbaseobjectlist()
+        example_list = utilities.create_example_dagbaseobjectlist()
 
         result = []
 
@@ -314,7 +245,7 @@ class TestDagBaseObjectList(unittest.TestCase):
         self.assertListEqual(result, result_expected)
 
     def test___getitem__(self):
-        example_list = create_example_dagbaseobjectlist()
+        example_list = utilities.create_example_dagbaseobjectlist()
 
         item = example_list[0]
 
@@ -328,7 +259,7 @@ class TestDagBaseObjectList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Get(self):
-        example_list = create_example_dagbaseobjectlist()
+        example_list = utilities.create_example_dagbaseobjectlist()
 
         item = example_list.Get("BaseObject_2_Null")
 
@@ -342,13 +273,13 @@ class TestDagBaseObjectList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Get_raise_DagNotFoundError(self):
-        example_list = create_example_dagbaseobjectlist()
+        example_list = utilities.create_example_dagbaseobjectlist()
 
         with self.assertRaises(dag.DagNotFoundError):
             example_list.Get("YouCanNotFindMe")
 
     def test_Extend(self):
-        example_list = create_example_dagbaseobjectlist()
+        example_list = utilities.create_example_dagbaseobjectlist()
 
         new_object = c4d.BaseObject(c4d.Onull)
         new_object.SetName("NewItem_Null")
@@ -363,7 +294,7 @@ class TestDagBaseObjectList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Append(self):
-        example_list = create_example_dagbaseobjectlist()
+        example_list = utilities.create_example_dagbaseobjectlist()
 
         new_object = c4d.BaseObject(c4d.Onull)
         new_object.SetName("NewItem_Null")
@@ -378,7 +309,7 @@ class TestDagBaseObjectList(unittest.TestCase):
 
 class TestDagBaseTagList(unittest.TestCase):
     def test___iter__(self):
-        example_list = create_example_dagbasetaglist()
+        example_list = utilities.create_example_dagbasetaglist()
 
         result = []
 
@@ -395,7 +326,7 @@ class TestDagBaseTagList(unittest.TestCase):
         self.assertListEqual(result, result_expected)
 
     def test___getitem__(self):
-        example_list = create_example_dagbasetaglist()
+        example_list = utilities.create_example_dagbasetaglist()
 
         item = example_list[0]
 
@@ -409,7 +340,7 @@ class TestDagBaseTagList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Get(self):
-        example_list = create_example_dagbasetaglist()
+        example_list = utilities.create_example_dagbasetaglist()
 
         item = example_list.Get("BaseTag_2_Constraint")
 
@@ -423,13 +354,13 @@ class TestDagBaseTagList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Get_raise_DagNotFoundError(self):
-        example_list = create_example_dagbasetaglist()
+        example_list = utilities.create_example_dagbasetaglist()
 
         with self.assertRaises(dag.DagNotFoundError):
             example_list.Get("YouCanNotFindMe")
 
     def test_Extend(self):
-        example_list = create_example_dagbasetaglist()
+        example_list = utilities.create_example_dagbasetaglist()
 
         new_object = c4d.BaseTag(1019364)
         new_object.SetName("NewItem_Constraint")
@@ -444,7 +375,7 @@ class TestDagBaseTagList(unittest.TestCase):
         self.assertEqual(result, result_expected)
 
     def test_Append(self):
-        example_list = create_example_dagbasetaglist()
+        example_list = utilities.create_example_dagbasetaglist()
 
         new_object = c4d.BaseTag(1019364)
         new_object.SetName("NewItem_Constraint")

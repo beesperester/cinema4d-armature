@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 import c4d
 
 from armature import dag
@@ -23,10 +23,10 @@ def serialize_matrix_as_dict(matrix: c4d.Matrix) -> Dict[str, Dict]:
     }
 
 
-def serialize_base_container_as_dict(bc: c4d.BaseContainer) -> Dict[str, Dict]:
+def serialize_basecontainer_as_dict(bc: c4d.BaseContainer) -> Dict[str, Dict]:
     def serialize_value(value: Any) -> Any:
         if isinstance(value, c4d.BaseContainer):
-            return serialize_base_container_as_dict(value)
+            return serialize_basecontainer_as_dict(value)
         elif isinstance(value, c4d.Matrix):
             return serialize_matrix_as_dict(value)
         elif isinstance(value, c4d.Vector):
@@ -42,17 +42,47 @@ def serialize_base_container_as_dict(bc: c4d.BaseContainer) -> Dict[str, Dict]:
     }
 
 
-def serialize_dagbaseobject_as_dict(
-    dag_base_object: dag.DagBaseObject,
-) -> Dict[str, Any]:
-    base_container: c4d.BaseContainer = dag_base_object.item.GetDataInstance()  # type: ignore
+def serialize_baselist2d_as_dict(
+    baselist2d: c4d.BaseList2D, recursive: bool = False
+):
+    return {
+        "instance_of": "c4d.BaseList2D",
+        "name": baselist2d.GetName(),
+        "type": baselist2d.GetType(),
+        "data": serialize_basecontainer_as_dict(
+            baselist2d.GetDataInstance()  # type:ignore
+        ),
+    }
 
-    return serialize_base_container_as_dict(base_container)
+
+def serialize_baseobject_as_dict(
+    baseobject: c4d.BaseObject, recursive: bool = False
+):
+    return {
+        **serialize_baselist2d_as_dict(baseobject),
+        "instance_of": "c4d.BaseObject",
+        "children": [
+            serialize_baseobject_as_dict(x, recursive)
+            for x in baseobject.GetChildren()  # type: ignore
+            if recursive
+        ],
+    }
+
+
+def serialize_basetag_as_dict(basetag: c4d.BaseTag):
+    return {
+        **serialize_baselist2d_as_dict(basetag),
+        "instance_of": "c4d.BaseTag",
+    }
+
+
+def serialize_dagbaseobject_as_dict(
+    dag_base_object: dag.DagBaseObject, recursive: bool = False
+) -> Dict[str, Any]:
+    return serialize_baseobject_as_dict(dag_base_object.item, recursive)
 
 
 def serialize_dagbasetag_as_dict(
     dag_base_tag: dag.DagBaseTag,
 ) -> Dict[str, Any]:
-    base_container: c4d.BaseContainer = dag_base_tag.item.GetDataInstance()  # type: ignore
-
-    return serialize_base_container_as_dict(base_container)
+    return serialize_basetag_as_dict(dag_base_tag.item)
