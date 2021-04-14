@@ -24,7 +24,7 @@ class ArmatureModule:
         self.GetAdapters().Extend(adapters)
         self.GetObjects().Extend(adapters)
 
-    def AppendAdapter(self, adapter: dag.DagBaseObject) -> None:
+    def AppendObject(self, adapter: dag.DagBaseObject) -> None:
         self.GetAdapters().Append(adapter)
         self.GetObjects().Append(adapter)
 
