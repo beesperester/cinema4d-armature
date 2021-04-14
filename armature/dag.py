@@ -78,6 +78,10 @@ class DagBaseObject(DagBaseList2D[c4d.BaseObject]):
     def GetTag(self, path: str) -> DagBaseTag:
         return self.GetTags().Get(path)
 
+    def GetRecursive(self, path: str) -> Generator[DagBaseObject, None, None]:
+        for result in super().GetRecursive(path):
+            yield DagBaseObject(result.item)
+
 
 class DagBaseTag(DagBaseList2D[c4d.BaseTag]):
     pass
