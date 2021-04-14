@@ -21,4 +21,4 @@ jobs:
         pycodestyle armature --show-source --ignore E501
     - name: Test with coverage and unittest
       run: |
-        "/Applications/Maxon Cinema 4D R23/c4dpy.app/Contents/MacOS/c4dpy" -m unittest discover -v -s "/Users/bernhardesperester/git/cinema4d-armature/tests" -p "*_test.py"
+        c4dpy -m unittest discover -v -s $PWD/tests -p "*_test.py"
