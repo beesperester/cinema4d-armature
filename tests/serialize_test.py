@@ -188,6 +188,20 @@ class TestSerializeModule(unittest.TestCase):
         except exceptions.ComparisonBaseError as e:
             raise AssertionError(e) from e
 
+    def test_serialize_layerobjec_as_dict(self):
+        layer_object = c4d.documents.LayerObject()
+
+        result = serialize.serialize_layerobject_as_dict(layer_object)
+        result_expected = {
+            "instance_of": "c4d.documents.LayerObject",
+            "name": "Layer",
+        }
+
+        try:
+            dictutils.assert_is_subset(result_expected, result)
+        except exceptions.ComparisonBaseError as e:
+            raise AssertionError(e) from e
+
 
 if __name__ == "__main__":
     unittest.main()

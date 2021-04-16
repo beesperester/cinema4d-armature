@@ -63,13 +63,11 @@ def serialize_baselist2d_as_dict(
 def serialize_layerobject_as_dict(
     layerobject: c4d.documents.LayerObject,
 ) -> Dict[str, Any]:
-    layerobject_data_instance: c4d.BaseContainer = layerobject.GetDataInstance()  # type: ignore
-
     return {
         "instance_of": "c4d.documents.LayerObject",
         "name": layerobject.GetName(),
         "color": serialize_vector_as_dict(
-            layerobject_data_instance[c4d.ID_LAYER_COLOR]  # type: ignore
+            layerobject[c4d.ID_LAYER_COLOR]  # type: ignore
         ),
     }
 
