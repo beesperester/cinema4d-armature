@@ -162,6 +162,42 @@ class TestDagBaseObject(unittest.TestCase):
 
         self.assertListEqual(result, result_expected)
 
+    def test_GetMg(self):
+        asset_object = utilities.create_example_dagbaseobject()
+
+        self.assertIsInstance(asset_object.GetMg(), c4d.Matrix)
+
+    def test_SetMg(self):
+        asset_object = utilities.create_example_dagbaseobject()
+        matrix = c4d.Matrix(
+            c4d.Vector(0), c4d.Vector(0), c4d.Vector(0), c4d.Vector(0)
+        )
+
+        asset_object.SetMg(matrix)
+
+        result = serialize.serialize_matrix_as_dict(asset_object.GetMg())
+        result_expected = serialize.serialize_matrix_as_dict(matrix)
+
+        self.assertDictEqual(result, result_expected)
+
+    def test_GetMl(self):
+        asset_object = utilities.create_example_dagbaseobject()
+
+        self.assertIsInstance(asset_object.GetMl(), c4d.Matrix)
+
+    def test_SetMl(self):
+        asset_object = utilities.create_example_dagbaseobject()
+        matrix = c4d.Matrix(
+            c4d.Vector(0), c4d.Vector(0), c4d.Vector(0), c4d.Vector(0)
+        )
+
+        asset_object.SetMl(matrix)
+
+        result = serialize.serialize_matrix_as_dict(asset_object.GetMl())
+        result_expected = serialize.serialize_matrix_as_dict(matrix)
+
+        self.assertDictEqual(result, result_expected)
+
 
 class TestDagBaseTag(unittest.TestCase):
     def test_GetBaseObject(self):

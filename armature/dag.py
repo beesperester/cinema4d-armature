@@ -116,6 +116,18 @@ class DagBaseObject(DagAtom):
     def InsertUnder(self, parent: DagBaseObject) -> None:
         self.item.InsertUnder(parent.item)
 
+    def GetMg(self) -> c4d.Matrix:
+        return self.item.GetMg()  # type: ignore
+
+    def SetMg(self, matrix: c4d.Matrix) -> None:
+        self.item.SetMg(matrix)
+
+    def GetMl(self) -> c4d.Matrix:
+        return self.item.GetMl()  # type: ignore
+
+    def SetMl(self, matrix: c4d.Matrix) -> None:
+        self.item.SetMl(matrix)
+
 
 class DagBaseTag(DagAtom):
     item: c4d.BaseTag
