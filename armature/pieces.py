@@ -21,7 +21,7 @@ class ArmatureModule:
         self._tag_effects = dag.DagBaseTagList()
 
     def CaptureEffects(
-        self, generator: typing.Generator[dag.DagBaseList2D, None, None]
+        self, generator: typing.Generator[dag.DagAtom, None, None]
     ) -> None:
         for effect in generator:
             if isinstance(effect, dag.DagBaseTag):
@@ -62,6 +62,14 @@ class ArmatureModule:
 
     def _TearDown(self) -> None:
         logging.info(f"{self.__class__.__name__}::TearDown")
+
+        # remove object effects
+        for object_effect in self.GetObjecEffects():
+            object_effect.Remove()
+
+        # remove tag effects
+        for tag_effect in self.GetTagEffects():
+            tag_effect.Remove()
 
         self.TearDown()
 
