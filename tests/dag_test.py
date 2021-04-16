@@ -28,6 +28,27 @@ class TestDagAtom(unittest.TestCase):
 
         self.assertEqual(result, result_expected)
 
+    def test_GetDataInstance(self):
+        asset_object = utilities.create_example_dagatom()
+
+        self.assertIsInstance(
+            asset_object.GetDataInstance(), c4d.BaseContainer
+        )
+
+    def test_SetLayerObject(self):
+        doc: c4d.documents.BaseDocument = c4d.documents.GetActiveDocument()  # type: ignore
+        layer_object = c4d.documents.LayerObject()
+        layer_object.SetName("Foobar")
+        layer_object.InsertUnder(doc.GetLayerObjectRoot())  # type: ignore
+
+        asset_object = utilities.create_example_dagatom()
+
+        asset_object.SetLayerObject(layer_object)
+
+        self.assertIsInstance(
+            asset_object.GetLayerObject(doc), c4d.documents.LayerObject
+        )
+
     def test_IsAlive(self):
         asset_object = utilities.create_example_dagatom()
 

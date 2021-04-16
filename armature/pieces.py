@@ -1,3 +1,5 @@
+import c4d
+
 import typing
 import logging
 
@@ -9,6 +11,7 @@ class ArmatureModule:
         self,
         dag_object: dag.DagBaseObject,
         adapters: dag.DagBaseObjectList,
+        layer: typing.Optional[c4d.documents.LayerObject] = None,
         modules: typing.Optional[typing.List["ArmatureModule"]] = None,
     ) -> None:
         if modules is None:
@@ -16,6 +19,7 @@ class ArmatureModule:
 
         self._dag_object = dag_object
         self._adapters = adapters
+        self._layer = layer
         self._modules = modules
         self._object_effects = dag.DagBaseObjectList()
         self._tag_effects = dag.DagBaseTagList()
@@ -29,6 +33,9 @@ class ArmatureModule:
             elif isinstance(effect, dag.DagBaseObject):
                 self.GetObjecEffects().Append(effect)
                 self.GetAdapters().Append(effect)
+
+    def GetLayer(self) -> typing.Optional[c4d.documents.LayerObject]:
+        return self._layer
 
     def GetDagObject(self) -> dag.DagBaseObject:
         return self._dag_object

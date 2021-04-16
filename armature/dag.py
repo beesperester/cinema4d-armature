@@ -51,6 +51,17 @@ class DagAtom:
     def GetType(self) -> int:
         return self.item.GetType()  # type: ignore
 
+    def GetDataInstance(self) -> c4d.BaseContainer:
+        return self.item.GetDataInstance()  # type: ignore
+
+    def SetLayerObject(self, layer: c4d.documents.LayerObject) -> None:
+        self.item.SetLayerObject(layer)  # type: ignore
+
+    def GetLayerObject(
+        self, doc: c4d.documents.BaseDocument
+    ) -> c4d.documents.LayerObject:
+        return self.item.GetLayerObject(doc)  # type: ignore
+
 
 class DagBaseObject(DagAtom):
     item: c4d.BaseObject
@@ -85,10 +96,10 @@ class DagBaseObject(DagAtom):
 
         return child
 
-    def GetTags(self) -> DagAtomList[DagBaseTag]:
+    def GetTags(self) -> DagBaseTagList:
         tags: List[c4d.BaseTag] = self.item.GetTags()  # type: ignore
 
-        return DagAtomList([DagBaseTag(x) for x in tags])
+        return DagBaseTagList([DagBaseTag(x) for x in tags])
 
     def GetTag(self, path: str) -> DagBaseTag:
         return self.GetTags().Get(path)
@@ -250,6 +261,7 @@ def create_dagbaseobject(
     type_id: int,
     children: Optional[DagBaseObjectList] = None,
     parent: Optional[DagBaseObject] = None,
+    layer: Optional[c4d.documents.LayerObject] = None,
 ) -> DagBaseObject:
     base_object = c4d.BaseObject(type_id)
     base_object.SetName(name)
@@ -261,16 +273,25 @@ def create_dagbaseobject(
         for child in children:
             child.item.InsertUnder(base_object)
 
+    if layer:
+        base_object.SetLayerObject(layer)
+
     return DagBaseObject(base_object)
 
 
 def create_dagbasetag(
-    name: str, type_id: int, base_object: Optional[DagBaseObject] = None
+    name: str,
+    type_id: int,
+    base_object: Optional[DagBaseObject] = None,
+    layer: Optional[c4d.documents.LayerObject] = None,
 ) -> DagBaseTag:
     base_tag = c4d.BaseTag(type_id)
     base_tag.SetName(name)
 
     if base_object:
         base_object.item.InsertTag(base_tag)
+
+    if layer:
+        base_tag.SetLayerObject(layer)
 
     return DagBaseTag(base_tag)
