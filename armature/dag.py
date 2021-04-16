@@ -93,9 +93,23 @@ class DagBaseObject(DagAtom):
     def GetTag(self, path: str) -> DagBaseTag:
         return self.GetTags().Get(path)
 
+    def InsertTag(self, tag: DagBaseTag) -> None:
+        self.item.InsertTag(tag.item)
+
+    def InsertUnder(self, parent: DagBaseObject) -> None:
+        self.item.InsertUnder(parent.item)
+
 
 class DagBaseTag(DagAtom):
     item: c4d.BaseTag
+
+    def GetBaseObject(self) -> DagBaseObject:
+        base_object: c4d.BaseObject = self.item.GetObject()  # type: ignore
+
+        return DagBaseObject(base_object)
+
+    def AttachToBaseObject(self, baseobject: DagBaseObject) -> None:
+        baseobject.InsertTag(self)
 
 
 T = TypeVar("T", bound=DagAtom)
@@ -229,3 +243,34 @@ class DagBaseObjectList(DagAtomList[DagBaseObject]):
 
 class DagBaseTagList(DagAtomList[DagBaseTag]):
     pass
+
+
+def create_dagbaseobject(
+    name: str,
+    type_id: int,
+    children: Optional[DagBaseObjectList] = None,
+    parent: Optional[DagBaseObject] = None,
+) -> DagBaseObject:
+    base_object = c4d.BaseObject(type_id)
+    base_object.SetName(name)
+
+    if parent:
+        base_object.InsertUnder(parent.item)
+
+    if children:
+        for child in children:
+            child.item.InsertUnder(base_object)
+
+    return DagBaseObject(base_object)
+
+
+def create_dagbasetag(
+    name: str, type_id: int, base_object: Optional[DagBaseObject] = None
+) -> DagBaseTag:
+    base_tag = c4d.BaseTag(type_id)
+    base_tag.SetName(name)
+
+    if base_object:
+        base_object.item.InsertTag(base_tag)
+
+    return DagBaseTag(base_tag)

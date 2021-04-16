@@ -3,7 +3,9 @@ import unittest
 
 from typing import List
 
-from armature import dag
+from beutils import dictutils
+from beutils.exceptions import ComparisonBaseError
+from armature import dag, serialize
 from tests import utilities
 
 
@@ -121,6 +123,19 @@ class TestDagBaseObject(unittest.TestCase):
         result_expected = ["Spine_2_Joint", "Spine_3_Joint", "Spine_4_Joint"]
 
         self.assertListEqual(result, result_expected)
+
+
+class TestDagBaseTag(unittest.TestCase):
+    def test_GetBaseObject(self):
+        base_object = utilities.create_example_dagbaseobject()
+        base_tag = utilities.create_example_dagbasetag()
+
+        base_object.item.InsertTag(base_tag.item)
+
+        result = base_tag.GetBaseObject().GetName()
+        result_expected = "Asset_Grp"
+
+        self.assertEqual(result, result_expected)
 
 
 class TestDagList(unittest.TestCase):
@@ -244,6 +259,77 @@ class TestDagList(unittest.TestCase):
         self.assertListEqual(
             result_after_cleanup, result_after_cleanup_expected
         )
+
+
+class TestDagModule(unittest.TestCase):
+    def test_create_dagbaseobject(self):
+        base_object = dag.create_dagbaseobject("Foobar", c4d.Onull)
+
+        result = serialize.serialize_dagbaseobject_as_dict(base_object)
+        result_expected = {"name": "Foobar", "type": c4d.Onull}
+
+        try:
+            dictutils.assert_is_subset(result_expected, result)
+        except ComparisonBaseError as e:
+            raise AssertionError(e) from e
+
+    def test_create_dagbaseobject_parent(self):
+        parent_base_object = dag.create_dagbaseobject("Barfoo", c4d.Onull)
+        base_object = dag.create_dagbaseobject(
+            "Foobar", c4d.Onull, parent=parent_base_object
+        )
+
+        result = serialize.serialize_dagbaseobject_as_dict(
+            base_object.GetParent()
+        )
+        result_expected = {"name": "Barfoo", "type": c4d.Onull}
+
+        try:
+            dictutils.assert_is_subset(result_expected, result)
+        except ComparisonBaseError as e:
+            raise AssertionError(e) from e
+
+    def test_create_dagbaseobject_children(self):
+        children = utilities.create_example_dagbaseobjectlist()
+        base_object = dag.create_dagbaseobject(
+            "Foobar", c4d.Onull, children=children
+        )
+
+        result = serialize.serialize_dagbaseobject_as_dict(base_object)
+        result_expected = {
+            "name": "Foobar",
+            "type": c4d.Onull,
+            "children": [
+                {"name": f"BaseObject_{x}_Null", "type": c4d.Onull}
+                for x in range(1, 11)
+            ],
+        }
+
+        try:
+            dictutils.assert_is_subset(result_expected, result)
+        except ComparisonBaseError as e:
+            raise AssertionError(e) from e
+
+    def test_create_dagbasetag(self):
+        base_tag = dag.create_dagbasetag("Foobar", 1019364)
+
+        result = serialize.serialize_dagbasetag_as_dict(base_tag)
+        result_expected = {"name": "Foobar", "type": 1019364}
+
+        try:
+            dictutils.assert_is_subset(result_expected, result)
+        except ComparisonBaseError as e:
+            raise AssertionError(e) from e
+
+    def test_create_dagbasetag_base_object(self):
+        base_object = dag.create_dagbaseobject("Foobar", c4d.Onull)
+
+        dag.create_dagbasetag("Barfoo", 1019364, base_object)
+
+        result = [x.GetName() for x in base_object.GetTags()]
+        result_expected = ["Barfoo"]
+
+        self.assertListEqual(result, result_expected)
 
 
 if __name__ == "__main__":

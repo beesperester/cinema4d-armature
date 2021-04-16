@@ -85,8 +85,8 @@ def create_example_daglist():
     )
 
 
-def create_example_dagbaseobjectlist():
-    return dag.DagAtomList(
+def create_example_dagbaseobjectlist() -> dag.DagBaseObjectList:
+    return dag.DagBaseObjectList(
         [dag.DagBaseObject(x) for x in create_example_baseobjects_list()]
     )
 
