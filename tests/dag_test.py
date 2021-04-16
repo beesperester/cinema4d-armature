@@ -28,6 +28,23 @@ class TestDagAtom(unittest.TestCase):
 
         self.assertEqual(result, result_expected)
 
+    def test___getitem__(self):
+        asset_object = utilities.create_example_dagatom()
+
+        result = asset_object[c4d.ID_BASELIST_NAME]
+        result_expected = "Asset_Grp"
+
+        self.assertEqual(result, result_expected)
+
+    def test___setitem__(self):
+        asset_object = utilities.create_example_dagatom()
+        asset_object[c4d.ID_BASELIST_NAME] = "Foobar"
+
+        result = asset_object.GetName()
+        result_expected = "Foobar"
+
+        self.assertEqual(result, result_expected)
+
     def test_GetDataInstance(self):
         asset_object = utilities.create_example_dagatom()
 

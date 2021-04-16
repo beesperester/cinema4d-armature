@@ -38,6 +38,12 @@ class DagAtom:
             hex(id(self)),
         )
 
+    def __setitem__(self, key: int, value: Any):
+        self.item[key] = value
+
+    def __getitem__(self, key: int) -> Any:
+        return self.item[key]
+
     def IsAlive(self) -> bool:
         return self._is_alive
 
