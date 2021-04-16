@@ -4,19 +4,31 @@ import c4d
 import typing
 import fnmatch
 
-from typing import List, Optional, Dict, Any, TypeVar, Generic
-
-
-T = TypeVar("T", bound=c4d.BaseList2D, contravariant=True)
+from collections import UserList, abc
+from typing import (
+    Generator,
+    List,
+    Optional,
+    Dict,
+    Any,
+    TypeVar,
+    Generic,
+    Type,
+    Union,
+    Sequence,
+    Iterable,
+    MutableSequence,
+)
 
 
 class DagNotFoundError(Exception):
     pass
 
 
-class DagBaseList2D(Generic[T]):
-    def __init__(self, item: T) -> None:
+class DagAtom:
+    def __init__(self, item: c4d.BaseList2D) -> None:
         self.item = item
+        self._is_alive = True
 
     def __repr__(self):
         return "<{} named '{}' with id #{} at {}>".format(
@@ -26,82 +38,160 @@ class DagBaseList2D(Generic[T]):
             hex(id(self)),
         )
 
+    def IsAlive(self) -> bool:
+        return self._is_alive
+
+    def Remove(self) -> None:
+        self.item.Remove()
+        self._is_alive = False
+
     def GetName(self) -> str:
         return self.item.GetName()  # type: ignore
 
     def GetType(self) -> int:
         return self.item.GetType()  # type: ignore
 
-    def GetChildren(self) -> DagBaseList2DList[T]:
-        children: List[T] = self.item.GetChildren()  # type: ignore
 
-        return DagBaseList2DList(children)
+class DagBaseObject(DagAtom):
+    item: c4d.BaseObject
 
-    def GetChild(self, path: str) -> DagBaseList2D[T]:
-        return self.GetChildren().Get(path)
-
-    def GetParent(self) -> DagBaseList2D[T]:
-        parent: T = self.item.GetUp()  # type: ignore
-
-        return DagBaseList2D(parent)
-
-
-class DagBaseObject(DagBaseList2D[c4d.BaseObject]):
-    def GetChildren(self) -> DagBaseObjectList:
+    def GetChildren(self) -> DagAtomList[DagBaseObject]:
         children: List[c4d.BaseObject] = self.item.GetChildren()  # type: ignore
 
-        return DagBaseObjectList(children)
-
-    def GetChild(self, path: str) -> DagBaseObject:
-        return DagBaseObject(super().GetChild(path).item)
+        return DagAtomList([DagBaseObject(x) for x in children])
 
     def GetParent(self) -> DagBaseObject:
-        return DagBaseObject(super().GetParent().item)
+        parent: c4d.BaseObject = self.item.GetUp()  # type: ignore
 
-    def GetTags(self) -> DagBaseTagList:
+        return DagBaseObject(parent)
+
+    def GetRecursive(self, path: str) -> Generator[DagBaseObject, None, None]:
+        child = self.GetChild(path)
+
+        yield child
+
+        try:
+            yield from child.GetRecursive(path)
+        except DagNotFoundError:
+            pass
+
+    def GetChild(self, path: str) -> DagBaseObject:
+        parts = path.split("/")
+
+        child = self.GetChildren().Get(path)
+
+        if len(parts) > 1:
+            return child.GetChild("/".join(parts[1:]))
+
+        return child
+
+    def GetTags(self) -> DagAtomList[DagBaseTag]:
         tags: List[c4d.BaseTag] = self.item.GetTags()  # type: ignore
 
-        return DagBaseTagList(tags)
+        return DagAtomList([DagBaseTag(x) for x in tags])
 
     def GetTag(self, path: str) -> DagBaseTag:
         return self.GetTags().Get(path)
 
 
-class DagBaseTag(DagBaseList2D[c4d.BaseTag]):
-    pass
+class DagBaseTag(DagAtom):
+    item: c4d.BaseTag
 
 
-class DagBaseList2DList(Generic[T]):
-    def __init__(self, items: Optional[List[T]] = None) -> None:
+T = TypeVar("T", bound=DagAtom)
+
+
+class DagAtomList(Generic[T], abc.MutableSequence):
+    def __init__(self, items: Optional[MutableSequence[T]] = None) -> None:
         if items is None:
             items = []
 
-        self.items = items
+        self._items = items
         self._n = 0
 
+    def __delitem__(self, index: int) -> None:
+        self.CleanUp()
+
+        del self._items[index]
+
+    def __getitem__(self, index: int) -> T:
+        self.CleanUp()
+
+        return self._items[index]
+
+    def __len__(self) -> int:
+        self.CleanUp()
+
+        return len(self._items)
+
     def __iter__(self):
+        self.CleanUp()
+
         self._n = 0
 
         return self
 
-    def __next__(self) -> DagBaseList2D[T]:
-        if self._n < len(self.items):
-            result = self.items[self._n]
+    def __next__(self) -> T:
+        if self._n < len(self._items):
+            result = self._items[self._n]
 
             self._n += 1
 
-            return self.__wrapitem__(result)
+            return result
         else:
             raise StopIteration
 
-    def __getitem__(self, index: int) -> DagBaseList2D[T]:
-        return self.__wrapitem__(self.items[index])
+    def __setitem__(self, index: int, item: T) -> None:
+        self.CleanUp()
 
-    def __wrapitem__(self, item: T) -> DagBaseList2D[T]:
-        return DagBaseList2D(item)
+        self._items[index] = item
 
-    def Get(self, path: str) -> DagBaseList2D[T]:
-        names: List[str] = [x.GetName() for x in self]  # type: ignore
+    # mutable sequence default functions
+
+    def insert(self, index: int, item: T) -> None:
+        self.CleanUp()
+
+        self._items.insert(index, item)
+
+    def extend(self, items: MutableSequence[T]) -> None:
+        self.CleanUp()
+
+        self._items.extend(items)
+
+    def append(self, item: T) -> None:
+        self.CleanUp()
+
+        self._items.append(item)
+
+    def pop(self, index: Optional[int] = None) -> T:
+        if index is None:
+            return self._items.pop()
+
+        return self._items.pop(index)
+
+    # sugar functions
+
+    def Insert(self, index: int, item: T) -> None:
+        self.insert(index, item)
+
+    def Extend(self, items: MutableSequence[T]) -> None:
+        self.extend(items)
+
+    def Append(self, item: T) -> None:
+        self.append(item)
+
+    def Pop(self, index: Optional[int] = None) -> T:
+        return self.pop(index)
+
+    # custom functions
+
+    def CleanUp(self):
+        self._items = list(filter(lambda x: x.IsAlive(), self._items))
+
+    def Get(self, path: str) -> T:
+        self.CleanUp()
+
+        names: List[str] = [x.GetName() for x in self._items]
 
         parts = path.split("/")
 
@@ -124,53 +214,18 @@ class DagBaseList2DList(Generic[T]):
             # use child index to retrieve base object
             # if child index is larger -1
             if child_index > -1:
-                child = self[child_index]
+                child = self._items[child_index]
 
-                if len(parts) > 1:
-                    return child.GetChild("/".join(parts[1:]))
-                else:
-                    return child
+                return child
 
         raise DagNotFoundError(
             f"'{self.__class__.__name__}' has no child object called '{path}'"
         )
 
-    def Extend(self, items: DagBaseList2DList[T]) -> None:
-        self.items.extend(items.items)
 
-    def Append(self, item: DagBaseList2D[T]) -> None:
-        self.items.append(item.item)
+class DagBaseObjectList(DagAtomList[DagBaseObject]):
+    pass
 
 
-class DagBaseObjectList(DagBaseList2DList[c4d.BaseObject]):
-    def __getitem__(self, index: int) -> DagBaseObject:
-        return DagBaseObject(super().__getitem__(index).item)
-
-    def __wrapitem__(self, item: c4d.BaseObject) -> DagBaseObject:
-        return DagBaseObject(item)
-
-    def Extend(self, items: DagBaseObjectList) -> None:
-        return super().Extend(items)
-
-    def Append(self, item: DagBaseObject) -> None:
-        super().Append(item)
-
-    def Get(self, path: str) -> DagBaseObject:
-        return DagBaseObject(super().Get(path).item)
-
-
-class DagBaseTagList(DagBaseList2DList[c4d.BaseTag]):
-    def __getitem__(self, index: int) -> DagBaseTag:
-        return DagBaseTag(super().__getitem__(index).item)
-
-    def __wrapitem__(self, item: c4d.BaseTag) -> DagBaseTag:
-        return DagBaseTag(item)
-
-    def Extend(self, items: DagBaseTagList) -> None:
-        return super().Extend(items)
-
-    def Append(self, item: DagBaseTag) -> None:
-        super().Append(item)
-
-    def Get(self, path: str) -> DagBaseTag:
-        return DagBaseTag(super().Get(path).item)
+class DagBaseTagList(DagAtomList[DagBaseTag]):
+    pass

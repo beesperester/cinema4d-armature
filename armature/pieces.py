@@ -17,22 +17,18 @@ class ArmatureModule:
         self._dag_object = dag_object
         self._adapters = adapters
         self._modules = modules
-        self._objects = dag.DagBaseObjectList()
-        self._tags = dag.DagBaseTagList()
+        self._object_effects = dag.DagBaseObjectList()
+        self._tag_effects = dag.DagBaseTagList()
 
-    def ExtendObjects(self, adapters: dag.DagBaseObjectList) -> None:
-        self.GetAdapters().Extend(adapters)
-        self.GetObjects().Extend(adapters)
-
-    def AppendAdapter(self, adapter: dag.DagBaseObject) -> None:
-        self.GetAdapters().Append(adapter)
-        self.GetObjects().Append(adapter)
-
-    def ExtendTags(self, tags: dag.DagBaseTagList) -> None:
-        self.GetTags().Extend(tags)
-
-    def AppendTag(self, tag: dag.DagBaseTag) -> None:
-        self.GetTags().Append(tag)
+    def CaptureEffects(
+        self, generator: typing.Generator[dag.DagAtom, None, None]
+    ) -> None:
+        for effect in generator:
+            if isinstance(effect, dag.DagBaseTag):
+                self.GetTagEffects().Append(effect)
+            elif isinstance(effect, dag.DagBaseObject):
+                self.GetObjecEffects().Append(effect)
+                self.GetAdapters().Append(effect)
 
     def GetDagObject(self) -> dag.DagBaseObject:
         return self._dag_object
@@ -40,11 +36,11 @@ class ArmatureModule:
     def GetAdapters(self) -> dag.DagBaseObjectList:
         return self._adapters
 
-    def GetObjects(self) -> dag.DagBaseObjectList:
-        return self._objects
+    def GetObjecEffects(self) -> dag.DagBaseObjectList:
+        return self._object_effects
 
-    def GetTags(self) -> dag.DagBaseTagList:
-        return self._tags
+    def GetTagEffects(self) -> dag.DagBaseTagList:
+        return self._tag_effects
 
     def GetModules(self) -> typing.List["ArmatureModule"]:
         return self._modules
@@ -66,6 +62,14 @@ class ArmatureModule:
 
     def _TearDown(self) -> None:
         logging.info(f"{self.__class__.__name__}::TearDown")
+
+        # remove object effects
+        for object_effect in self.GetObjecEffects():
+            object_effect.Remove()
+
+        # remove tag effects
+        for tag_effect in self.GetTagEffects():
+            tag_effect.Remove()
 
         self.TearDown()
 
