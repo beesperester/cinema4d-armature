@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import c4d
 
-import typing
 import logging
+
+from typing import List, Optional, Generator
 
 from armature import dag
 
@@ -11,8 +14,8 @@ class ArmatureModule:
         self,
         dag_object: dag.DagBaseObject,
         adapters: dag.DagBaseObjectList,
-        layer: typing.Optional[c4d.documents.LayerObject] = None,
-        modules: typing.Optional[typing.List["ArmatureModule"]] = None,
+        layer: Optional[c4d.documents.LayerObject] = None,
+        modules: Optional[List[ArmatureModule]] = None,
     ) -> None:
         if modules is None:
             modules = []
@@ -25,7 +28,7 @@ class ArmatureModule:
         self._tag_effects = dag.DagBaseTagList()
 
     def CaptureEffects(
-        self, generator: typing.Generator[dag.DagAtom, None, None]
+        self, generator: Generator[dag.DagAtom, None, None]
     ) -> None:
         for effect in generator:
             if isinstance(effect, dag.DagBaseTag):
@@ -34,7 +37,7 @@ class ArmatureModule:
                 self.GetObjecEffects().Append(effect)
                 self.GetAdapters().Append(effect)
 
-    def GetLayer(self) -> typing.Optional[c4d.documents.LayerObject]:
+    def GetLayer(self) -> Optional[c4d.documents.LayerObject]:
         return self._layer
 
     def GetDagObject(self) -> dag.DagBaseObject:
@@ -49,7 +52,7 @@ class ArmatureModule:
     def GetTagEffects(self) -> dag.DagBaseTagList:
         return self._tag_effects
 
-    def GetModules(self) -> typing.List["ArmatureModule"]:
+    def GetModules(self) -> List[ArmatureModule]:
         return self._modules
 
     def _PreSetup(self) -> None:
