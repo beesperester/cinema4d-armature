@@ -45,12 +45,31 @@ def serialize_basecontainer_as_dict(bc: c4d.BaseContainer) -> Dict[str, Dict]:
 def serialize_baselist2d_as_dict(
     baselist2d: c4d.BaseList2D, recursive: bool = False
 ):
+    doc: c4d.documents.BaseDocument = c4d.documents.GetActiveDocument()  # type: ignore
+
+    layer: Optional[c4d.documents.LayerObject] = baselist2d.GetLayerObject(doc)  # type: ignore
+
     return {
         "instance_of": "c4d.BaseList2D",
         "name": baselist2d.GetName(),
         "type": baselist2d.GetType(),
+        "layer": serialize_layerobject_as_dict(layer) if layer else None,
         "data": serialize_basecontainer_as_dict(
             baselist2d.GetDataInstance()  # type:ignore
+        ),
+    }
+
+
+def serialize_layerobject_as_dict(
+    layerobject: c4d.documents.LayerObject,
+) -> Dict[str, Any]:
+    layerobject_data_instance: c4d.BaseContainer = layerobject.GetDataInstance()  # type: ignore
+
+    return {
+        "instance_of": "c4d.documents.LayerObject",
+        "name": layerobject.GetName(),
+        "color": serialize_vector_as_dict(
+            layerobject_data_instance[c4d.ID_LAYER_COLOR]  # type: ignore
         ),
     }
 
